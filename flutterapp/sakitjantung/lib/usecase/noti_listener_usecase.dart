@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_notification_listener/flutter_notification_listener.dart';
 import 'package:sakitjantung/entities/noti_entity.dart';
+import 'package:sakitjantung/services/alibaba_services.dart';
 
 import '../services/firebase_services.dart';
 
@@ -14,6 +15,15 @@ class NotiListenerUseCase extends ChangeNotifier {
   bool isListening = false;
   ReceivePort port = ReceivePort();
   final FirebaseService firebaseService = FirebaseService();
+  List<String> ignored = [
+    "com.whatsapp",
+    "com.tencent.mm",
+    "org.telegram.messenger",
+    "com.instagram.android",
+    "com.facebook.orca",
+    "com.microsoft.office.outlook",
+    "com.discord"
+  ];
 
   NotiListenerUseCase() {
     firebaseService.addListener(_firebaseServiceListener);
@@ -57,7 +67,7 @@ class NotiListenerUseCase extends ChangeNotifier {
     IsolateNameServer.removePortNameMapping("_listener_");
     IsolateNameServer.registerPortWithName(port.sendPort, "_listener_");
     if (!isListening) {
-      port.listen((message) => onData(message));
+      port.listen((message) async => await onData(message));
       isListening = true;
     }
 
@@ -68,16 +78,75 @@ class NotiListenerUseCase extends ChangeNotifier {
     notifyListeners();
   }
 
-  void onData(NotificationEvent event) {
-    if (!uniqueEventIds.contains(event.timestamp.toString())) {
-      NotificationEventEntity entity = convertToEntity(event);
-      eventsEntities.add(entity);
-      uniqueEventIds.add(event.timestamp.toString());
-      firebaseService.saveEventToFirebase(entity);
-      notifyListeners();
-      debugPrint("onData: ${event.toString()}");
-    } else {
-      debugPrint("Duplicate notification received: ${event.toString()}");
+  // converts amounts
+  List<double> extractAmounts(String message) {
+    // Regular expression to match amounts with "RM" in various formats
+    final RegExp regExp = RegExp(r'RM\s?(\d+(?:\.\d+)?)', caseSensitive: false);
+    List<double> amounts = [];
+
+    // Find all matches in the message
+    Iterable<RegExpMatch> matches = regExp.allMatches(message);
+
+    // Convert matches to double and add to the list
+    for (var match in matches) {
+      String? amountStr = match.group(1);
+      if (amountStr != null) {
+        amounts.add(double.parse(amountStr));
+      }
+    }
+
+    return amounts;
+  }
+
+  Future<void> onData(NotificationEvent event) async {
+    try {
+      if (!uniqueEventIds.contains(event.timestamp.toString())) {
+        NotificationEventEntity entity = convertToEntity(event);
+
+        // if (!ignored.contains(entity.packageName)) {
+          // check message
+          String msg = "${entity.title} | ${entity.text}";
+          debugPrint(msg);
+          int res = await AlibabaServices().classifyData(msg);
+          if (res == -1) {
+            //TODO: replace with error message
+            debugPrint("Connection Timed Out");
+          } else if (res == 0) {
+            notifyListeners();
+            return;
+          } else if (res == 1) {
+            // money in
+            entity.transactionType = res;
+
+            // extract amount
+            double amount = extractAmounts(msg)[0];
+            entity.amount = amount;
+
+            eventsEntities.add(entity);
+            uniqueEventIds.add(event.timestamp.toString());
+            await firebaseService.saveEventToFirebase(entity);
+          } else if (res == 2) {
+            // money out
+            entity.transactionType = res;
+
+            // extract amount
+            double amount = extractAmounts(msg)[0];
+            entity.amount = amount;
+
+            eventsEntities.add(entity);
+            uniqueEventIds.add(event.timestamp.toString());
+            await firebaseService.saveEventToFirebase(entity);
+          }
+
+          notifyListeners();
+          
+        // }
+        debugPrint("onData: ${event.toString()}");
+      } else {
+        debugPrint("Duplicate notification received: ${event.toString()}");
+      }
+    } catch (e) {
+      debugPrint("Error on load data: $e");
     }
   }
 
@@ -160,4 +229,6 @@ class NotiListenerUseCase extends ChangeNotifier {
       canTap: entity.canTap,
     );
   }
+
+  loadEventsFromFirebase() {}
 }

@@ -15,6 +15,8 @@ class NotificationEventEntity {
   Uint8List? largeIcon;
   bool canTap;
   Map<String, dynamic> raw;
+  int transactionType; // 2 for money in, 1 for money out
+  double amount;
 
   NotificationEventEntity({
     String? uniqueId,
@@ -31,6 +33,8 @@ class NotificationEventEntity {
     Uint8List? largeIcon,
     bool? canTap,
     Map<String, dynamic>? raw,
+    int? transactionType,
+    double? amount,
   })  : uniqueId = uniqueId ?? '',
         key = key ?? '',
         packageName = packageName ?? '',
@@ -44,7 +48,9 @@ class NotificationEventEntity {
         hasLargeIcon = hasLargeIcon ?? false,
         largeIcon = largeIcon ?? Uint8List(0),
         canTap = canTap ?? false,
-        raw = raw ?? {};
+        raw = raw ?? {},
+        transactionType = transactionType ?? -1,
+        amount = amount ?? 0; // -1 means not classified
 
   // Convert a map to a NotificationEventEntity object
   factory NotificationEventEntity.fromMap(Map<String, dynamic>? map) {
@@ -68,6 +74,8 @@ class NotificationEventEntity {
           : null,
       canTap: map['canTap'],
       raw: map['raw'],
+      transactionType: map['transactionType'],
+      amount: map['amount'],
     );
   }
 
@@ -88,6 +96,8 @@ class NotificationEventEntity {
       'largeIcon': largeIcon?.toList(),
       'canTap': canTap,
       'raw': raw,
+      'transactionType': transactionType,
+      'amount': amount,
     };
   }
 }

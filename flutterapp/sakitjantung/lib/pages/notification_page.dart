@@ -1,14 +1,13 @@
 import 'dart:convert';
-
+import 'package:encrypt/encrypt.dart' as enc;
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:sakitjantung/services/firebase_services.dart';
 import 'package:sakitjantung/usecase/noti_listener_usecase.dart';
 
 import '../usecase/navigation_usecase.dart';
 import '../widgets/notification_card.dart';
-
-import 'package:http/http.dart' as http;
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -18,6 +17,8 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
+  Box? box;
+
   @override
   void initState() {
     super.initState();
@@ -25,55 +26,9 @@ class _NotificationPageState extends State<NotificationPage> {
       NotiListenerUseCase eventsUseCase =
           Provider.of<NotiListenerUseCase>(context, listen: false);
       await eventsUseCase.initPlatformState();
+      box = await Hive.openBox("encryptionkey");
       eventsUseCase.initializeEventList();
     });
-  }
-
-  Future<int> classifyData(String message) async {
-    Map<String, int> responseClasses = {
-      "NOT TRANSACTION": 0,
-      "MONEY OUT": 1,
-      "MONEY IN": 2
-    };
-
-    List<String> resList = [];
-
-    final url = Uri.parse('http://47.250.87.162:9000/api/classify');
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'data': message}),
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      resList.add(data['prediction']);
-      // print('Prediction: ${data['prediction']}');
-    } else {
-      resList.add("ERROR");
-      // print('Failed to load data');
-    }
-
-    if (resList[0] == "ERROR") {
-      debugPrint("Something went wong");
-      return -1;
-    } else {
-      if (responseClasses[resList[0]] == 0) {
-        debugPrint("NOT A TRANSACTION");
-        return 0;
-      } else if (responseClasses[resList[0]] == 1) {
-        debugPrint("MONEY OUT");
-        return 1;
-      } else if (responseClasses[resList[0]] == 2) {
-        debugPrint("MONEY IN");
-        return 2;
-      }
-    }
-
-    debugPrint("Something went wong");
-    return -1;
   }
 
   @override
@@ -88,48 +43,95 @@ class _NotificationPageState extends State<NotificationPage> {
                 const SizedBox(
                   height: 20,
                 ),
-                TextButton(
-                    onPressed: () async {
-                      int res1 = await classifyData(
-                          "Algorithm & Data Structure: Shashi Baka (OOP Lecturer) | Graphs.pptx");
-                      int res2 = await classifyData(
-                          "Ka-ching! Incoming money | Transaction to Hans, RM 10 with Touch n go");
-                      int res3 = await classifyData(
-                          "DuitNow Payment | You have paid RM6.00 to island one cafe and bakery.");
-                    },
-                    child: Text("SEND")),
-                FutureBuilder(
-                  future: f.loadEventsFromFirebase(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text("Error: ${snapshot.error}");
-                    } else {
-                      return (e.eventsEntities.isNotEmpty)
-                          ? ListView.builder(
-                              physics: const NeverScrollableScrollPhysics(),
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              itemCount: e.eventsEntities.length,
-                              reverse: true,
-                              itemBuilder: (BuildContext context, int idx) {
-                                final entry = e.eventsEntities[idx];
-                                return NotificationCard(
-                                  title: entry.title,
-                                  text: entry.text,
-                                  time: entry.createAt
-                                      .toString()
-                                      .substring(0, 19),
-                                  event: entry,
-                                );
-                              })
-                          : const Center(
-                              child: Text("Empty"),
-                            );
-                    }
-                  },
-                )
+                // TextButton(
+                //     onPressed: () async {
+                //       int res1 = await classifyData(
+                //           "Algorithm & Data Structure: Shashi Baka (OOP Lecturer) | Graphs.pptx");
+                //       int res2 = await classifyData(
+                //           "Ka-ching! Incoming money | Transaction to Hans, RM 10 with Touch n go");
+                //       int res3 = await classifyData(
+                //           "DuitNow Payment | You have paid RM6.00 to island one cafe and bakery.");
+                //     },
+                //     child: const Text("SEND")),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Notification List",
+                      style: TextStyle(
+                          color: Colors.blue[900],
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                (n.dropDownValue == 0)
+                    ? FutureBuilder(
+                        future: f.loadEventsFromFirebase(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text("Error: ${snapshot.error}");
+                          } else {
+                            return ListView.builder(
+                                physics: const NeverScrollableScrollPhysics(),
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                itemCount: e.eventsEntities.length,
+                                reverse: true,
+                                itemBuilder: (BuildContext context, int idx) {
+                                  final entry = e.eventsEntities[idx];
+
+                                  try {
+                                    // get key and iv
+                                    enc.Key? key;
+                                    enc.IV? iv;
+
+                                    // if (box!.values.isEmpty) {
+                                    //   key = enc.Key.fromLength(32);
+                                    //   iv = enc.IV.fromLength(8);
+                                    //   box!.put('salsa20', key.base64);
+                                    //   box!.put('iv', iv.base64);
+                                    //   debugPrint("Generating Key");
+                                    // } else {
+                                    //   key = enc.Key.fromBase64(
+                                    //       box!.get('salsa20')!);
+                                    //   iv = enc.IV.fromBase64(box!.get('iv')!);
+                                    // }
+                                    List<String> keys = box!.get('salsa20')!;
+                                    List<String> ivs = box!.get('iv')!;
+
+                                    key = enc.Key.fromBase64(keys[idx]);
+                                    iv = enc.IV.fromBase64(ivs[idx]);
+
+                                    final encrypter =
+                                        enc.Encrypter(enc.Salsa20(key));
+                                    final decrypted = encrypter.decrypt(
+                                        enc.Encrypted(base64Decode(entry.text)),
+                                        iv: iv);
+                                    debugPrint(decrypted);
+
+                                    entry.text = decrypted;
+                                  } catch (e) {
+                                    debugPrint(
+                                        "Error at notification page: $e");
+                                  }
+
+                                  return NotificationCard(
+                                    title: entry.title,
+                                    text: entry.text,
+                                    time: entry.createAt
+                                        .toString()
+                                        .substring(0, 19),
+                                    event: entry,
+                                  );
+                                });
+                          }
+                        },
+                      )
+                    : const Center(child: Text("Notification List is Empty")),
               ],
             ),
           ),
