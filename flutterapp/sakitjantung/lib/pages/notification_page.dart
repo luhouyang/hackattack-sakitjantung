@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sakitjantung/services/firebase_services.dart';
 import 'package:sakitjantung/usecase/noti_listener_usecase.dart';
 
 import '../usecase/navigation_usecase.dart';
@@ -77,8 +78,8 @@ class _NotificationPageState extends State<NotificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<NotiListenerUseCase, NavigationUseCase>(
-      builder: (context, e, n, child) {
+    return Consumer3<NotiListenerUseCase, FirebaseService, NavigationUseCase>(
+      builder: (context, e, f, n, child) {
         return SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -87,17 +88,16 @@ class _NotificationPageState extends State<NotificationPage> {
                 const SizedBox(
                   height: 20,
                 ),
-
-                TextButton(
-                    onPressed: () async {
-                      int res1 = await classifyData(
-                          "Algorithm & Data Structure: Shashi Baka (OOP Lecturer) | Graphs.pptx");
-                      int res2 = await classifyData(
-                          "Ka-ching! Incoming money | Transaction to Hans, RM 10 with Touch n go");
-                      int res3 = await classifyData(
-                          "DuitNow Payment | You have paid RM6.00 to island one cafe and bakery.");
-                    },
-                    child: const Text("SEND")),
+                // TextButton(
+                //     onPressed: () async {
+                //       int res1 = await classifyData(
+                //           "Algorithm & Data Structure: Shashi Baka (OOP Lecturer) | Graphs.pptx");
+                //       int res2 = await classifyData(
+                //           "Ka-ching! Incoming money | Transaction to Hans, RM 10 with Touch n go");
+                //       int res3 = await classifyData(
+                //           "DuitNow Payment | You have paid RM6.00 to island one cafe and bakery.");
+                //     },
+                //     child: const Text("SEND")),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

@@ -73,5 +73,4 @@ joblib.dump(clf, 'money_in_out.pkl')
 
 with open('money_in_out_vectorizer.pkl', 'wb') as f:
     pickle.dump(vectorizer, f)
-
 #%%

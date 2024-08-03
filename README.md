@@ -7,7 +7,7 @@
 
 * Flutter code base is in `flutterapp/sakitjantung`
 
-* Classifier model data & training info is in `model`
+* Classifier model data & training info is in `model` (Run python code by pressing on `run cell` the appear above `#%%`)
 
 ## Alibaba Cloud ECS & Classifier Configurations
 
