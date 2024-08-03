@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sakitjantung/pages/auth_stream.dart';
+import 'package:sakitjantung/services/firebase_services.dart';
 import 'package:sakitjantung/usecase/navigation_usecase.dart';
 
 // Import the generated file
@@ -29,6 +30,9 @@ class MainApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => NavigationUseCase(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => FirebaseService(),
         )
       ],
       child: MaterialApp(

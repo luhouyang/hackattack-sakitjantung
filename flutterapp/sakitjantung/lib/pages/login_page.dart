@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sakitjantung/utils/constants.dart';
 import 'package:sakitjantung/widgets/mybutton.dart';
 import 'package:sakitjantung/widgets/mytextbox.dart';
 import '../auth/auth_services.dart';
@@ -34,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
               height: 100,
               width: double.infinity,
               decoration: BoxDecoration(
-                  color: Colors.blue[900],
+                  color: MyColours.primaryColour,
                   borderRadius: const BorderRadius.only(
                       bottomRight: Radius.circular(100))),
             ),
@@ -45,10 +46,6 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.all(15),
               child: Column(
                 children: [
-                  // Image.asset(
-                  //   "./assets/images/fin_logo.png",
-                  //   height: 100,
-                  // ),
                   const Text(
                     "Login Page",
                     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
@@ -81,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
                     height: 20,
                   ),
                   MyButton(
-                    color: Colors.blue[900]!,
+                    color: MyColours.primaryColour,
                     text: "Login",
                     onTap: () {
                       FireAuthService fireAuth = FireAuthService();

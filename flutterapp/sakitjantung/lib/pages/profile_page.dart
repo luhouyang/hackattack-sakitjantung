@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sakitjantung/utils/constants.dart';
 import '../auth/auth_services.dart';
 import '../widgets/mybutton.dart';
 
@@ -14,24 +15,10 @@ class ProfilePage extends StatelessWidget {
         padding: const EdgeInsets.all(15),
         child: Column(
           children: [
-            SizedBox(
-              width: double.infinity,
-              child: Text(
-                "Your Profile",
-                style: TextStyle(
-                    color: Colors.blue[900],
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold),
-                textAlign: TextAlign.left,
-              ),
-            ),
-            const SizedBox(
-              height: 50,
-            ),
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                  color: Colors.blue[200],
+                  color: MyColours.primaryColour,
                   borderRadius: BorderRadius.circular(50)),
               child: const Icon(
                 Icons.person_2_rounded,
@@ -60,7 +47,7 @@ class ProfilePage extends StatelessWidget {
                     height: 20,
                   ),
                   MyButton(
-                      color: Colors.blue[900]!,
+                      color: MyColours.primaryColour,
                       text: "Log Out",
                       onTap: () {
                         FireAuthService fireAuth = FireAuthService();

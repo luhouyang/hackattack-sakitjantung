@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sakitjantung/services/firebase_services.dart';
 import 'package:sakitjantung/usecase/noti_listener_usecase.dart';
 
 import '../usecase/navigation_usecase.dart';
@@ -78,8 +79,8 @@ class _NotificationPageState extends State<NotificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<NotiListenerUseCase, NavigationUseCase>(
-      builder: (context, e, n, child) {
+    return Consumer3<NotiListenerUseCase, FirebaseService, NavigationUseCase>(
+      builder: (context, e, f, n, child) {
         return SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -99,49 +100,39 @@ class _NotificationPageState extends State<NotificationPage> {
                           "DuitNow Payment | You have paid RM6.00 to island one cafe and bakery.");
                     },
                     child: Text("SEND")),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Notification List",
-                      style: TextStyle(
-                          color: Colors.blue[900],
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                (n.dropDownValue == 0)
-                    ? FutureBuilder(
-                        future: e.loadEventsFromFirebase(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const CircularProgressIndicator();
-                          } else if (snapshot.hasError) {
-                            return Text("Error: ${snapshot.error}");
-                          } else {
-                            return ListView.builder(
-                                physics: const NeverScrollableScrollPhysics(),
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                itemCount: e.eventsEntities.length,
-                                reverse: true,
-                                itemBuilder: (BuildContext context, int idx) {
-                                  final entry = e.eventsEntities[idx];
-                                  return NotificationCard(
-                                    title: entry.title,
-                                    text: entry.text,
-                                    time: entry.createAt
-                                        .toString()
-                                        .substring(0, 19),
-                                    event: entry,
-                                  );
-                                });
-                          }
-                        },
-                      )
-                    : const Center(child: Text("Notification List is Empty")),
+
+                FutureBuilder(
+                  future: f.loadEventsFromFirebase(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text("Error: ${snapshot.error}");
+                    } else {
+                      return (e.eventsEntities.isNotEmpty)
+                          ? ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              itemCount: e.eventsEntities.length,
+                              reverse: true,
+                              itemBuilder: (BuildContext context, int idx) {
+                                final entry = e.eventsEntities[idx];
+                                return NotificationCard(
+                                  title: entry.title,
+                                  text: entry.text,
+                                  time: entry.createAt
+                                      .toString()
+                                      .substring(0, 19),
+                                  event: entry,
+                                );
+                              })
+                          : const Center(
+                              child: Text("Empty"),
+                            );
+                    }
+                  },
+                )
               ],
             ),
           ),
