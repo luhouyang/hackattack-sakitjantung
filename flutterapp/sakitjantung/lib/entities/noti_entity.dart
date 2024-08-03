@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 class NotificationEventEntity {
+  String docId;
   String uniqueId;
   String key;
   String packageName;
@@ -19,6 +20,7 @@ class NotificationEventEntity {
   double amount;
 
   NotificationEventEntity({
+    String? docId,
     String? uniqueId,
     String? key,
     String? packageName,
@@ -35,7 +37,8 @@ class NotificationEventEntity {
     Map<String, dynamic>? raw,
     int? transactionType,
     double? amount,
-  })  : uniqueId = uniqueId ?? '',
+  })  : docId = docId ?? '',
+        uniqueId = uniqueId ?? '',
         key = key ?? '',
         packageName = packageName ?? '',
         uid = uid ?? 0,
@@ -57,6 +60,7 @@ class NotificationEventEntity {
     if (map == null) return NotificationEventEntity();
 
     return NotificationEventEntity(
+      docId: map['docId'],
       uniqueId: map['uniqueId'],
       key: map['key'],
       packageName: map['packageName'],
@@ -82,6 +86,7 @@ class NotificationEventEntity {
   // Convert a NotificationEventEntity object to a map
   Map<String, dynamic> toMap() {
     return {
+      'docId': docId,
       'uniqueId': uniqueId,
       'key': key,
       'packageName': packageName,

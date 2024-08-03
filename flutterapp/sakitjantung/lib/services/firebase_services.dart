@@ -81,7 +81,10 @@ class FirebaseService extends ChangeNotifier {
           firestore.collection('users').doc(currentUserUid);
       CollectionReference eventsCollection = userDocRef.collection('events');
 
-      await eventsCollection.add(entity.toMap());
+      String docRef = eventsCollection.doc().id;
+      entity.docId = docRef;
+
+      await eventsCollection.doc(docRef).set(entity.toMap());
       debugPrint('Event saved to Firebase: ${entity.toMap()}');
       notifyListeners();
     } catch (error) {
@@ -90,23 +93,24 @@ class FirebaseService extends ChangeNotifier {
   }
 
   Future<void> removeEventFromFirebase(NotificationEventEntity entity) async {
-    if (currentUserUid == null) {
-      debugPrint("User is not authenticated. Cannot remove event.");
-      return;
-    }
+    // if (currentUserUid == null) {
+    //   debugPrint("User is not authenticated. Cannot remove event.");
+    //   return;
+    // }
     try {
       DocumentReference userDocRef =
-          firestore.collection('users').doc(currentUserUid);
+          firestore.collection('users').doc(FirebaseAuth.instance.currentUser!.uid);
       CollectionReference eventsCollection = userDocRef.collection('events');
+      eventsCollection.doc(entity.docId).delete();
 
-      QuerySnapshot querySnapshot = await eventsCollection
-          .where('timestamp', isEqualTo: entity.timestamp)
-          .get();
+      // QuerySnapshot querySnapshot = await eventsCollection
+      //     .where('timestamp', isEqualTo: entity.timestamp)
+      //     .get();
 
-      for (QueryDocumentSnapshot document in querySnapshot.docs) {
-        await document.reference.delete();
-        debugPrint('Event removed from Firebase: ${entity.toMap()}');
-      }
+      // for (QueryDocumentSnapshot document in querySnapshot.docs) {
+      //   await document.reference.delete();
+      //   debugPrint('Event removed from Firebase: ${entity.toMap()}');
+      // }
       notifyListeners();
     } catch (error) {
       debugPrint('Error removing event from Firebase: $error');
