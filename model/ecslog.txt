@@ -13,4 +13,6 @@ pip install -U scikit-learn
 pip install Flask
 ```
 
-1. Create folder
+1. Create folder in root `models`
+
+1. Upload .pkl file

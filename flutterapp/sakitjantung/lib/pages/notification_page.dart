@@ -67,7 +67,11 @@ class _NotificationPageState extends State<NotificationPage> {
                 TextButton(
                     onPressed: () async {
                       await classifyData(
+                          "Algorithm & Data Structure: Shashi Baka (OOP Lecturer) | Graphs.pptx");
+                      await classifyData(
                           "Ka-ching! Incoming money | aelbgla rg gg hehe boi Transaction to Hans, RM 10 with Touch n go");
+                      await classifyData(
+                          "DuitNow Payment | You have paid RM6.00 to island one cafe and bakery.");
                     },
                     child: Text("SEND")),
                 Row(

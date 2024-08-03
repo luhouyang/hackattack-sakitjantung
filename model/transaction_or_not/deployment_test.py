@@ -8,7 +8,6 @@ import joblib
 import pickle
 
 ### remove
-# rawdata = pd.read_csv('testdata.csv')
 rawdata = pd.read_csv('transaction-notransaction.csv')
 rawdf = pd.DataFrame(rawdata)
 
@@ -17,11 +16,10 @@ labels = rawdf.iloc[:, 1]
 ###
 
 # load vectorizer and vector support machine
-transaction_or_not_feature_map = {
+transaction_or_not_classes = {
     0: "NOT TRANSACTION",
     1: "TRANSACTION"
 }
-
 clf = joblib.load('transaction_or_not.pkl')
 
 with open('transaction_or_not_vectorizer.pkl', 'rb') as f:
@@ -40,7 +38,7 @@ y_pred = clf.predict(vector_words)
 
 # Evaluate the performance
 accuracy = accuracy_score(y_pred, labels)
-report = classification_report(y_pred, labels, target_names=[transaction_or_not_feature_map[0], transaction_or_not_feature_map[1]])
+report = classification_report(y_pred, labels, target_names=[transaction_or_not_classes[0], transaction_or_not_classes[1]])
 
 print(f'Accuracy: {accuracy:.4f}')
 print('Classification Report:')
@@ -55,7 +53,7 @@ def predict_category(text):
     """
     text_vec = vectorizer.transform([text])
     prediction = clf.predict(text_vec)
-    return transaction_or_not_feature_map[prediction[0]]
+    return transaction_or_not_classes[prediction[0]]
 
 # Example usecase
 sample_text = "Transaction to Ali RM 2"
