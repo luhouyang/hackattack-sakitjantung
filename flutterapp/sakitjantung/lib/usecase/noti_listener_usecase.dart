@@ -2,8 +2,10 @@ import 'dart:isolate';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_notification_listener/flutter_notification_listener.dart';
+import 'package:hive/hive.dart';
 import 'package:sakitjantung/entities/noti_entity.dart';
 import 'package:sakitjantung/services/alibaba_services.dart';
+// import 'package:encrypt/encrypt.dart' as enc;
 
 import '../services/firebase_services.dart';
 
@@ -104,42 +106,42 @@ class NotiListenerUseCase extends ChangeNotifier {
         NotificationEventEntity entity = convertToEntity(event);
 
         // if (!ignored.contains(entity.packageName)) {
-          // check message
-          String msg = "${entity.title} | ${entity.text}";
-          debugPrint(msg);
-          int res = await AlibabaServices().classifyData(msg);
-          if (res == -1) {
-            //TODO: replace with error message
-            debugPrint("Connection Timed Out");
-          } else if (res == 0) {
-            notifyListeners();
-            return;
-          } else if (res == 1) {
-            // money in
-            entity.transactionType = res;
-
-            // extract amount
-            double amount = extractAmounts(msg)[0];
-            entity.amount = amount;
-
-            eventsEntities.add(entity);
-            uniqueEventIds.add(event.timestamp.toString());
-            await firebaseService.saveEventToFirebase(entity);
-          } else if (res == 2) {
-            // money out
-            entity.transactionType = res;
-
-            // extract amount
-            double amount = extractAmounts(msg)[0];
-            entity.amount = amount;
-
-            eventsEntities.add(entity);
-            uniqueEventIds.add(event.timestamp.toString());
-            await firebaseService.saveEventToFirebase(entity);
-          }
-
+        // check message
+        String msg = "${entity.title} | ${entity.text}";
+        debugPrint(msg);
+        int res = await AlibabaServices().classifyData(msg);
+        if (res == -1) {
+          //TODO: replace with error message
+          debugPrint("Connection Timed Out");
+        } else if (res == 0) {
           notifyListeners();
-          
+          return;
+        } else if (res == 1) {
+          // money in
+          entity.transactionType = res;
+
+          // extract amount
+          double amount = extractAmounts(msg)[0];
+          entity.amount = amount;
+
+          eventsEntities.add(entity);
+          uniqueEventIds.add(event.timestamp.toString());
+          await firebaseService.saveEventToFirebase(entity);
+        } else if (res == 2) {
+          // money out
+          entity.transactionType = res;
+
+          // extract amount
+          double amount = extractAmounts(msg)[0];
+          entity.amount = amount;
+
+          eventsEntities.add(entity);
+          uniqueEventIds.add(event.timestamp.toString());
+          await firebaseService.saveEventToFirebase(entity);
+        }
+
+        notifyListeners();
+
         // }
         debugPrint("onData: ${event.toString()}");
       } else {
@@ -150,11 +152,26 @@ class NotiListenerUseCase extends ChangeNotifier {
     }
   }
 
-  void removeEvent(NotificationEvent event) {
+  Future<void> removeEvent(NotificationEvent event, int index) async {
     NotificationEventEntity entity = convertToEntity(event);
+
+    var box = await Hive.openBox("encryptionkey");
+
+    List<String> keys = [];
+    List<String> ivs = [];
+    if (box.values.isNotEmpty) {
+      keys = box.get('salsa20')!;
+      ivs = box.get('iv')!;
+      keys.removeAt(index);
+      ivs.removeAt(index);
+      box.deleteAll(['salsa20', 'iv']);
+    }
+
+    box.putAll({'salsa20': keys, 'iv': ivs});
+
     eventsEntities.removeWhere((e) => e.uniqueId == entity.uniqueId);
     uniqueEventIds.remove(entity.uniqueId);
-    firebaseService.removeEventFromFirebase(entity);
+    // await firebaseService.removeEventFromFirebase(entity);
     notifyListeners();
     debugPrint("Event removed");
   }
@@ -230,5 +247,5 @@ class NotiListenerUseCase extends ChangeNotifier {
     );
   }
 
-  loadEventsFromFirebase() {}
+  // loadEventsFromFirebase() {}
 }
