@@ -1,5 +1,8 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:sakitjantung/widgets/cashflow_data.dart';
+import 'package:sakitjantung/widgets/piechart_cashflow.dart';
+import 'package:sakitjantung/widgets/piechart_expenses.dart';
+import 'package:sakitjantung/widgets/expenses_data.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,7 +15,7 @@ class _HomePageState extends State<HomePage> {
   int touchedIndex = -1;
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPage = 0;
-  List<String> titles = ['Expense', 'Income'];
+  List<String> titles = ['Expense', 'Cashflow']; // Updated title here
 
   @override
   void dispose() {
@@ -27,7 +30,6 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(15.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
           children: [
             Text(
               "STATISTICS",
@@ -37,10 +39,11 @@ class _HomePageState extends State<HomePage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 5), // Reduce space between title and button
+            const SizedBox(
+              height: 5,
+            ),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  vertical: 5.0), // Add vertical padding around the button
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
               child: SegmentedButton(
                 segments: titles,
                 selectedIndex: _currentPage,
@@ -56,213 +59,38 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
             ),
-            const SizedBox(height: 10), // Space between button and chart
+            const SizedBox(height: 10),
             Expanded(
               child: PageView(
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _buildPieChartExpenses(),
-                  _buildPieChartIncome(),
+                children: const [
+                  Column(
+                    children: [
+                      Expanded(
+                          child: ExpensesPieChart(
+                              numberOfCategories: 5,
+                              amounts: [500, 750, 100, 300, 400],
+                              names: ['A', 'B', 'C', 'D', 'E'])),
+                      SizedBox(height: 10),
+                      ExpensesData(),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Expanded(
+                          child: CashflowPieChart(
+                              numberOfCategories: 5,
+                              amounts: [200, 400, 150, 600, 700],
+                              names: ['A', 'B', 'C', 'D', 'E'])),
+                      CashflowData(),
+                    ],
+                  ),
                 ],
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildPieChartExpenses() {
-    return Center(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          PieChart(
-            PieChartData(
-              pieTouchData: PieTouchData(
-                touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                  setState(() {
-                    if (!event.isInterestedForInteractions ||
-                        pieTouchResponse == null ||
-                        pieTouchResponse.touchedSection == null) {
-                      touchedIndex = -1;
-                      return;
-                    }
-                    touchedIndex =
-                        pieTouchResponse.touchedSection!.touchedSectionIndex;
-                  });
-                },
-              ),
-              borderData: FlBorderData(show: false),
-              sectionsSpace: 0,
-              centerSpaceRadius: 55,
-              sections: [
-                PieChartSectionData(
-                  color: const Color(0xFFFE5F55),
-                  value: 60,
-                  title: '60%',
-                  radius: touchedIndex == 0 ? 110 : 100,
-                  titleStyle: TextStyle(
-                    fontSize: touchedIndex == 0 ? 20 : 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                PieChartSectionData(
-                  color: const Color(0xFF577399),
-                  value: 20,
-                  title: '20%',
-                  radius: touchedIndex == 1 ? 110 : 100,
-                  titleStyle: TextStyle(
-                    fontSize: touchedIndex == 1 ? 20 : 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                PieChartSectionData(
-                  color: const Color(0xFF90BE6D),
-                  value: 10,
-                  title: '10%',
-                  radius: touchedIndex == 2 ? 110 : 100,
-                  titleStyle: TextStyle(
-                    fontSize: touchedIndex == 2 ? 20 : 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                PieChartSectionData(
-                  color: const Color(0xFFF5E960),
-                  value: 10,
-                  title: '10%',
-                  radius: touchedIndex == 3 ? 110 : 100,
-                  titleStyle: TextStyle(
-                    fontSize: touchedIndex == 3 ? 20 : 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '\$458.00',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              Text(
-                'Total Expense',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPieChartIncome() {
-    return Center(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          PieChart(
-            PieChartData(
-              pieTouchData: PieTouchData(
-                touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                  setState(() {
-                    if (!event.isInterestedForInteractions ||
-                        pieTouchResponse == null ||
-                        pieTouchResponse.touchedSection == null) {
-                      touchedIndex = -1;
-                      return;
-                    }
-                    touchedIndex =
-                        pieTouchResponse.touchedSection!.touchedSectionIndex;
-                  });
-                },
-              ),
-              borderData: FlBorderData(show: false),
-              sectionsSpace: 0,
-              centerSpaceRadius: 55,
-              sections: [
-                PieChartSectionData(
-                  color: const Color(0xFF4B9CD3),
-                  value: 50,
-                  title: '50%',
-                  radius: touchedIndex == 0 ? 110 : 100,
-                  titleStyle: TextStyle(
-                    fontSize: touchedIndex == 0 ? 20 : 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                PieChartSectionData(
-                  color: const Color(0xFF8A4C4A),
-                  value: 25,
-                  title: '25%',
-                  radius: touchedIndex == 1 ? 110 : 100,
-                  titleStyle: TextStyle(
-                    fontSize: touchedIndex == 1 ? 20 : 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                PieChartSectionData(
-                  color: const Color(0xFF68B4C8),
-                  value: 15,
-                  title: '15%',
-                  radius: touchedIndex == 2 ? 110 : 100,
-                  titleStyle: TextStyle(
-                    fontSize: touchedIndex == 2 ? 20 : 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                PieChartSectionData(
-                  color: const Color(0xFF9B8F8F),
-                  value: 10,
-                  title: '10%',
-                  radius: touchedIndex == 3 ? 110 : 100,
-                  titleStyle: TextStyle(
-                    fontSize: touchedIndex == 3 ? 20 : 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '\$1234.00',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              Text(
-                'Total Income',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -284,7 +112,7 @@ class SegmentedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 146, 146, 146),
+        color: const Color.fromARGB(255, 146, 146, 146),
         borderRadius: BorderRadius.circular(25),
       ),
       child: Row(
@@ -297,7 +125,7 @@ class SegmentedButton extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? Color.fromARGB(255, 223, 225, 226)
+                    ? const Color.fromARGB(255, 223, 225, 226)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(25),
               ),
