@@ -17,7 +17,8 @@ transaction_category_classes = {
 }
 
 
-rawdata = pd.read_csv('categories-2.csv')
+# rawdata = pd.read_csv('categories-2.csv')
+rawdata = pd.read_csv('categories-3.csv', encoding="latin-1")
 rawdf = pd.DataFrame(rawdata)
 
 text = rawdf.iloc[:, 0]
@@ -25,7 +26,7 @@ labels = rawdf.iloc[:, 1]
 
 display(rawdf.head())
 
-vectorizer = TfidfVectorizer(stop_words=None, max_df=0.7, min_df=2)
+vectorizer = TfidfVectorizer(stop_words=None, max_df=1.0, min_df=2)
 vector_words = vectorizer.fit_transform(text)
 
 print(vectorizer.get_feature_names_out()) # remove to reduce output, check word space

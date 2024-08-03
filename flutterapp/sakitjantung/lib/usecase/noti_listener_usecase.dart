@@ -104,6 +104,8 @@ class NotiListenerUseCase extends ChangeNotifier {
     try {
       if (!uniqueEventIds.contains(event.timestamp.toString())) {
         NotificationEventEntity entity = convertToEntity(event);
+        uniqueEventIds.add(event.timestamp.toString());
+        notifyListeners();
 
         // if (!ignored.contains(entity.packageName)) {
         // check message
@@ -142,6 +144,7 @@ class NotiListenerUseCase extends ChangeNotifier {
         } else {
           // money in
           entity.transactionCategory = resList[1];
+
           eventsEntities.add(entity);
           uniqueEventIds.add(event.timestamp.toString());
           await firebaseService.saveEventToFirebase(entity);

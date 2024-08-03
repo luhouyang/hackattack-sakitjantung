@@ -8,7 +8,8 @@ import joblib
 import pickle
 
 ### remove
-rawdata = pd.read_csv('categories-2.csv')
+# rawdata = pd.read_csv('categories-2.csv')
+rawdata = pd.read_csv('categories-3.csv', encoding="latin-1")
 rawdf = pd.DataFrame(rawdata)
 
 text = rawdf.iloc[:, 0]
