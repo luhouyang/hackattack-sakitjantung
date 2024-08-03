@@ -43,6 +43,14 @@ class _NotificationPageState extends State<NotificationPage> {
             padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Column(
               children: [
+                TextButton(
+                  onPressed: () async {
+                    debugPrint("Starting.....");
+                    await f.saveEventsToFirebaseWithDelay(f.dummyData);
+                    debugPrint("Done hehehaha");
+                  },
+                  child: Text("Hehehaha"),
+                ),
                 // TextButton(
                 //     onPressed: () async {
                 //       int res1 = await classifyData(

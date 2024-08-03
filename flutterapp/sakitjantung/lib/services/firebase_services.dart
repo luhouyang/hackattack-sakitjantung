@@ -6,6 +6,89 @@ import 'package:hive/hive.dart';
 import 'package:sakitjantung/entities/noti_entity.dart';
 
 class FirebaseService extends ChangeNotifier {
+  List<NotificationEventEntity> dummyData = [
+    NotificationEventEntity(
+        title: "Transfer Successful.",
+        text: "RM 10.00 has been successfully transfereed to BEN LOO.",
+        amount: 10.00,
+        transactionType: 1,
+        transactionCategory: 4),
+    NotificationEventEntity(
+        title: "Payment To: Golden Screen Cinemas Sdn Bhd ",
+        text:
+            "Golden Screen Cinemas Sdn Bhd: RM19.00 has been deducted from you TNG eWallet.",
+        amount: 19.00,
+        transactionType: 1,
+        transactionCategory: 1),
+    NotificationEventEntity(
+        title: "Payment To: McD KAMPAR",
+        text:
+            "McD KAMPAR: RM22.50 has been deducted from you TNG eWallet. Merchant Reference No. 7RWFE66ZS1QX8",
+        amount: 22.50,
+        transactionType: 1,
+        transactionCategory: 3),
+    NotificationEventEntity(
+        title: "Payment To: A&W SERI ISKANDAR",
+        text:
+            "A&W SERI ISKANDAR: RM15.00 has been deducted from you TNG eWallet. Merchant Reference No. 07SEfbsR3NPP",
+        amount: 15.00,
+        transactionType: 1,
+        transactionCategory: 3),
+    NotificationEventEntity(
+        title: "Payment To: TGV Cinemas Sdn Bhd ",
+        text:
+            "TGV Cinemas Sdn Bhd: RM18.00 has been deducted from you TNG eWallet. Merchant Reference No. 07GFDV23SX2NSA",
+        amount: 18.00,
+        transactionType: 1,
+        transactionCategory: 1),
+    NotificationEventEntity(
+        title: "Payment To: Keretapi Tanah Melayu Berhad (KTMB)",
+        text:
+            "Keretapi Tanah Melayu Berhad (KTMB): RM58.00 has been deducted from you TNG eWallet. Merchant Reference No. 07XEGV78CV3BNG",
+        amount: 58.00,
+        transactionType: 1,
+        transactionCategory: 0),
+    NotificationEventEntity(
+        title: "Ka-ching! Incoming money",
+        text: "RM 25.00 received from MICHAEL TAN for Fund Transfer.",
+        amount: 25.00,
+        transactionType: 2,
+        transactionCategory: 4),
+    NotificationEventEntity(
+        title: "Payment To: Telekom Malaysia Berhad  (TM)",
+        text: "RM 25.00 received from MICHAEL TAN for Fund Transfer.",
+        amount: 25.00,
+        transactionType: 2,
+        transactionCategory: 4),
+    NotificationEventEntity(
+        title: "Ka-ching! Incoming money",
+        text:
+            "Telekom Malaysia Berhad (TM): RM200.00 has been deducted from you TNG eWallet. Merchant Reference No. 07JHGV34CV6LOP",
+        amount: 200.00,
+        transactionType: 1,
+        transactionCategory: 2),
+    NotificationEventEntity(
+        title: "Payment To: redBus",
+        text:
+            "redBus: RM25.00 has been deducted from you TNG eWallet. Merchant Reference No. 07RGHJ89CV3JUZR",
+        amount: 25.00,
+        transactionType: 1,
+        transactionCategory: 0),
+    NotificationEventEntity(
+        title: "Maybank2u: Funds Received",
+        text:
+            "You've just received RM34.00 in your account ending ***7654. REF: 20240801CIGGMYKL020ORM01052599",
+        amount: 34.00,
+        transactionType: 2,
+        transactionCategory: 4),
+    NotificationEventEntity(
+        title: "Payment To: 7eleven Greentown Ipoh PRK",
+        text:
+            "eleven Greentown Ipoh PRK: RM10.00 has been deducted from you TNG eWallet. Merchant Reference No. 07CDF67FD4YTT",
+        amount: 10.00,
+        transactionType: 1,
+        transactionCategory: 3),
+  ];
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   String? currentUserUid;
 
@@ -72,13 +155,14 @@ class FirebaseService extends ChangeNotifier {
 
     entity.text = encrypted.base64;
 
-    if (currentUserUid == null) {
+    if (FirebaseAuth.instance.currentUser!.uid.isEmpty) {
       debugPrint("User is not authenticated. Cannot save event.");
       return;
     }
     try {
-      DocumentReference userDocRef =
-          firestore.collection('users').doc(currentUserUid);
+      DocumentReference userDocRef = firestore
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid);
       CollectionReference eventsCollection = userDocRef.collection('events');
 
       String docRef = eventsCollection.doc().id;
@@ -98,8 +182,9 @@ class FirebaseService extends ChangeNotifier {
     //   return;
     // }
     try {
-      DocumentReference userDocRef =
-          firestore.collection('users').doc(FirebaseAuth.instance.currentUser!.uid);
+      DocumentReference userDocRef = firestore
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid);
       CollectionReference eventsCollection = userDocRef.collection('events');
       eventsCollection.doc(entity.docId).delete();
 
@@ -114,6 +199,14 @@ class FirebaseService extends ChangeNotifier {
       notifyListeners();
     } catch (error) {
       debugPrint('Error removing event from Firebase: $error');
+    }
+  }
+
+  Future<void> saveEventsToFirebaseWithDelay(
+      List<NotificationEventEntity> events) async {
+    for (var event in events) {
+      await saveEventToFirebase(event);
+      await Future.delayed(Duration(seconds: 1));
     }
   }
 
