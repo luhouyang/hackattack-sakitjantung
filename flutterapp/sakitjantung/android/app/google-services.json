@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1067382796201",
+    "project_id": "sakitjantung-5af49",
+    "storage_bucket": "sakitjantung-5af49.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1067382796201:android:f480739985db0bfd77deb8",
+        "android_client_info": {
+          "package_name": "com.example.sakitjantung"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGBnevuiU5m4u18rtEbwtrPq6R1ygiLnY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

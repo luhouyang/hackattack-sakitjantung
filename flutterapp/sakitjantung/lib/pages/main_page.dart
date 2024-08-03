@@ -6,6 +6,9 @@ import 'package:sakitjantung/pages/home_page.dart';
 import 'package:sakitjantung/pages/notification_page.dart';
 import 'package:sakitjantung/pages/profile_page.dart';
 import 'package:sakitjantung/usecase/navigation_usecase.dart';
+import 'package:sakitjantung/utils/constants.dart';
+
+import '../usecase/noti_listener_usecase.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -17,11 +20,27 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<NavigationUseCase>(builder: (context, navUse, child) {
+    return Consumer2<NotiListenerUseCase, NavigationUseCase>(
+        builder: (context, notiUse, navUse, child) {
       return Scaffold(
         body: changePage(navUse.bottomNavigationIdx),
+        floatingActionButton: FloatingActionButton(
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.yellow[900],
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          onPressed:
+              notiUse.started ? notiUse.stopListening : notiUse.startListening,
+          tooltip: 'Start/Stop sensing',
+          child: notiUse.isLoading
+              ? const Icon(Icons.close)
+              : (notiUse.started
+                  ? const Icon(Icons.stop)
+                  : const Icon(Icons.play_arrow)),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: AnimatedBottomNavigationBar(
-            backgroundColor: Colors.blue[900],
+            backgroundColor: MyColours.primaryColour,
             activeColor: Colors.white,
             inactiveColor: Colors.white.withOpacity(0.4),
             activeIndex: navUse.bottomNavigationIdx,

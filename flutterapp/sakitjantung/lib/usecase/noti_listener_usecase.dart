@@ -1,5 +1,7 @@
 import 'dart:isolate';
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_notification_listener/flutter_notification_listener.dart';
 import 'package:sakitjantung/entities/noti_entity.dart';
@@ -13,8 +15,21 @@ class NotiListenerUseCase extends ChangeNotifier {
   ReceivePort port = ReceivePort();
   String? currentUserUid;
 
-  @pragma(
-      'vm:entry-point') // prevent dart from stripping out this function on release build in Flutter 3.x
+  String? getCurrentUserUid() {
+    User? user = FirebaseAuth.instance.currentUser;
+    return user?.uid;
+  }
+
+  void initializeEventList() {
+    currentUserUid = getCurrentUserUid();
+    if (currentUserUid != null) {
+      loadEventsFromFirebase();
+    } else {
+      debugPrint("User is not authenticated. Cannot load events.");
+    }
+  }
+
+  @pragma('vm:entry-point')
   static void _callback(NotificationEvent evt) {
     debugPrint("send evt to ui: $evt");
     final SendPort? send = IsolateNameServer.lookupPortByName("_listener_");
@@ -22,21 +37,15 @@ class NotiListenerUseCase extends ChangeNotifier {
     send?.send(evt);
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     NotificationsListener.initialize(callbackHandle: _callback);
 
-    // this can fix restart<debug> can't handle error
     IsolateNameServer.removePortNameMapping("_listener_");
     IsolateNameServer.registerPortWithName(port.sendPort, "_listener_");
-    // Check if the port is already listening
     if (!isListening) {
       port.listen((message) => onData(message));
       isListening = true;
     }
-
-    // don't use the default receivePort
-    // NotificationsListener.receivePort.listen((evt) => onData(evt));
 
     var isRunning = (await NotificationsListener.isRunning) ?? false;
     debugPrint("""Service is ${!isRunning ? "not " : ""}already running""");
@@ -45,12 +54,12 @@ class NotiListenerUseCase extends ChangeNotifier {
     notifyListeners();
   }
 
-  //Add Data
   void onData(NotificationEvent event) {
     if (!uniqueEventIds.contains(event.timestamp.toString())) {
       NotificationEventEntity entity = convertToEntity(event);
       eventsEntities.add(entity);
       uniqueEventIds.add(event.timestamp.toString());
+      saveEventToFirebase(entity);
       notifyListeners();
       debugPrint("onData: ${event.toString()}");
     } else {
@@ -61,22 +70,17 @@ class NotiListenerUseCase extends ChangeNotifier {
   void removeEvent(NotificationEvent event) {
     NotificationEventEntity entity = convertToEntity(event);
 
-    // Remove the event from the list by uniqueId
     eventsEntities.removeWhere((e) => e.uniqueId == entity.uniqueId);
 
-    // Log the remaining events for debugging
     for (NotificationEventEntity e in eventsEntities) {
       debugPrint(e.text);
     }
-    // Notify listeners to update the UI
+
+    removeEventFromFirebase(entity);
+
     notifyListeners();
 
     debugPrint("Event removed");
-  }
-
-  Future<List<NotificationEventEntity>> loadEvents() async {
-    // You can add any additional logic to fetch or process events here
-    return eventsEntities;
   }
 
   void startListening() async {
@@ -148,5 +152,91 @@ class NotiListenerUseCase extends ChangeNotifier {
       text: entity.text,
       canTap: entity.canTap,
     );
+  }
+
+  Future<void> createUserDocument(String uid) async {
+    try {
+      final firestore = FirebaseFirestore.instance;
+      DocumentReference userDocRef = firestore.collection('users').doc(uid);
+
+      if (!(await userDocRef.get()).exists) {
+        await userDocRef.set({
+          'uid': uid,
+        });
+      }
+    } catch (error) {
+      debugPrint('Error creating user document: $error');
+    }
+  }
+
+  Future<void> saveEventToFirebase(NotificationEventEntity entity) async {
+    if (currentUserUid == null) {
+      debugPrint("User is not authenticated. Cannot save event.");
+      return;
+    }
+    try {
+      final firestore = FirebaseFirestore.instance;
+      DocumentReference userDocRef =
+          firestore.collection('users').doc(currentUserUid);
+      CollectionReference eventsCollection = userDocRef.collection('events');
+
+      await eventsCollection.add(entity.toMap());
+      debugPrint('Event saved to Firebase: ${entity.toMap()}');
+    } catch (error) {
+      debugPrint('Error saving event to Firebase: $error');
+    }
+  }
+
+  Future<void> removeEventFromFirebase(NotificationEventEntity entity) async {
+    if (currentUserUid == null) {
+      debugPrint("User is not authenticated. Cannot remove event.");
+      return;
+    }
+    try {
+      final firestore = FirebaseFirestore.instance;
+      DocumentReference userDocRef =
+          firestore.collection('users').doc(currentUserUid);
+      CollectionReference eventsCollection = userDocRef.collection('events');
+
+      QuerySnapshot querySnapshot = await eventsCollection
+          .where('timestamp', isEqualTo: entity.timestamp)
+          .get();
+
+      for (QueryDocumentSnapshot document in querySnapshot.docs) {
+        await document.reference.delete();
+        uniqueEventIds.remove(entity.uniqueId);
+        debugPrint('Event removed from Firebase: ${entity.toMap()}');
+      }
+    } catch (error) {
+      debugPrint('Error removing event from Firebase: $error');
+    }
+  }
+
+  Future<void> loadEventsFromFirebase() async {
+    if (currentUserUid == null) {
+      debugPrint("User is not authenticated. Cannot load events.");
+      return;
+    }
+    try {
+      eventsEntities.clear();
+
+      final firestore = FirebaseFirestore.instance;
+      DocumentReference userDocRef =
+          firestore.collection('users').doc(currentUserUid);
+      CollectionReference eventsCollection = userDocRef.collection('events');
+
+      QuerySnapshot querySnapshot =
+          await eventsCollection.orderBy('createAt').get();
+
+      eventsEntities = querySnapshot.docs
+          .map((DocumentSnapshot document) => NotificationEventEntity.fromMap(
+              document.data() as Map<String, dynamic>))
+          .toList();
+      uniqueEventIds = eventsEntities.map((e) => e.uniqueId).toSet();
+      debugPrint('Events loaded from Firebase: $eventsEntities');
+    } catch (e) {
+      debugPrint('Error loading events from Firebase: $e');
+      rethrow;
+    }
   }
 }
