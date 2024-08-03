@@ -39,7 +39,17 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Chat Page")),
+      appBar: AppBar(
+        title: const Text(
+          "CHAT PAGE",
+          style: TextStyle(
+            color: Color.fromARGB(255, 183, 28, 28),
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: Column(
         children: [
           Expanded(
@@ -56,7 +66,7 @@ class _ChatPageState extends State<ChatPage> {
                       padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: message["sender"] == "user"
-                            ? Colors.blueAccent
+                            ? Colors.redAccent
                             : Colors.grey[300],
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -75,14 +85,14 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 40),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _controller,
                     decoration: const InputDecoration(
-                      hintText: "Type your message...",
+                      hintText: "Test your financial sanity :)",
                     ),
                   ),
                 ),
