@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sakitjantung/services/firebase_services.dart';
 import 'package:sakitjantung/usecase/noti_listener_usecase.dart';
 
 import '../usecase/navigation_usecase.dart';
@@ -77,8 +78,8 @@ class _NotificationPageState extends State<NotificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<NotiListenerUseCase, NavigationUseCase>(
-      builder: (context, e, n, child) {
+    return Consumer3<NotiListenerUseCase, FirebaseService, NavigationUseCase>(
+      builder: (context, e, f, n, child) {
         return SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
