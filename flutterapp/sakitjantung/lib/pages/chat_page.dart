@@ -12,34 +12,6 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final TextEditingController _controller = TextEditingController();
-  final List<Map<String, String>> _messages = [];
-
-  void _sendMessage() {
-    if (_controller.text.isNotEmpty) {
-      setState(() {
-        _messages.add({"sender": "user", "message": _controller.text});
-      });
-      _controller.clear();
-      // Call your AI API here to get a response
-      _getAIResponse();
-    }
-  }
-
-  Future<void> _getAIResponse() async {
-    final userMessage = _messages.last["message"];
-    // Replace this with your API call
-    final responseMessage = await mockAIResponse(userMessage!);
-    setState(() {
-      _messages.add({"sender": "bot", "message": responseMessage});
-    });
-  }
-
-  Future<String> mockAIResponse(String message) async {
-    await Future.delayed(Duration(seconds: 1));
-    return "AI response to \"$message\"";
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<ChatUseCase>(

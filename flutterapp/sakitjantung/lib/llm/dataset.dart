@@ -65,6 +65,39 @@ class Dataset {
       Document(
           pageContent:
               "How to Apply \n 1. Visit the official SARA website at sara.hasil.gov.my. \n 2. Register for an account and provide the required personal and household information. \n 3. Submit the application with supporting documents. \n 4. Check the application status on the website.")
+    ],
+    'Bantuan e-Wallet (BINGKAS)': const [
+      Document(
+          pageContent:
+              "Description\nBantuan e-Wallet (BINGKAS) is a financial assistance program that provides e-wallet credits to help the low-income group with daily expenses."),
+      Document(
+          pageContent:
+              "Eligibility\nHouseholds with a monthly income below RM2,500.\nIndividuals aged 21 and above who are single, widowed, or divorced without children and have a monthly income below RM2,500."),
+      Document(
+          pageContent:
+              "How to Apply\n1. Visit the official BINGKAS website at bingkas.hasil.gov.my.\n2. Register for an account and provide the required personal and household information.\n3. Submit the application with supporting documents.\n4. Check the application status on the website."),
+    ],
+    'Bantuan Khas Penjawat Awam': const [
+      Document(
+          pageContent:
+              "Description\nBantuan Khas Penjawat Awam is a special financial assistance program for civil servants to help with their living expenses."),
+      Document(
+          pageContent:
+              "Eligibility\nAll civil servants are eligible for this assistance."),
+      Document(
+          pageContent:
+              "How to Apply\n1. No application is required. The assistance will be automatically credited to the civil servant's account."),
+    ],
+    'Bantuan Khas Guru Agama, Imam, Bilal, Siak': const [
+      Document(
+          pageContent:
+              "Description\nThis is a special financial assistance program for religious teachers, imams, bilals, and siaks to help with their living expenses."),
+      Document(
+          pageContent:
+              "Eligibility\nReligious teachers, imams, bilals, and siaks are eligible for this assistance."),
+      Document(
+          pageContent:
+              "How to Apply\n1. No application is required. The assistance will be automatically credited to the eligible individual's account.\nFor the most up-to-date and detailed information on these financial assistance programs, including payment amounts and deadlines, it is advisable to refer directly to the official government websites."),
     ]
   };
 
