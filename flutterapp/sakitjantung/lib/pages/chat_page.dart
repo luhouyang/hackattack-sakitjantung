@@ -1,4 +1,8 @@
+import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sakitjantung/usecase/chat_usecase.dart';
+import 'package:sakitjantung/utils/constants.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -38,73 +42,49 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "CHAT PAGE",
-          style: TextStyle(
-            color: Color.fromARGB(255, 183, 28, 28),
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-                return ListTile(
-                  title: Align(
-                    alignment: message["sender"] == "user"
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: message["sender"] == "user"
-                            ? Colors.redAccent
-                            : Colors.grey[300],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        message!["message"]!,
-                        style: TextStyle(
-                          color: message["sender"] == "user"
-                              ? Colors.white
-                              : Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
+    return Consumer<ChatUseCase>(
+      builder: (context, chatUseCase, child) {
+        return Column(
+          children: [
+            const Text('Choose a topic'),
+            const SizedBox(height: 10.0),
+            Wrap(
+              spacing: 5.0,
+              children: List<Widget>.generate(
+                chatUseCase.dataset.documentsByTopic.length,
+                (int index) {
+                  return ChoiceChip(
+                    label: Text(chatUseCase.dataset.documentsByTopic.keys
+                        .elementAt(index)),
+                    selected: chatUseCase.documentSelected == index,
+                    onSelected: (bool selected) {
+                      chatUseCase.changeSelectedDocument(index);
+                    },
+                  );
+                },
+              ).toList(),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 40),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      hintText: "Test your financial sanity :)",
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
+            Expanded(
+              child: DashChat(
+                typingUsers: chatUseCase.typingUsers,
+                messageOptions: MessageOptions(
+                    showTime: true,
+                    showOtherUsersName: true,
+                    currentUserContainerColor: MyColours.primaryColour),
+                currentUser: chatUseCase.user,
+                onSend: (ChatMessage m) {
+                  chatUseCase.addMessage(
+                      m,
+                      chatUseCase.dataset.documentsByTopic[chatUseCase
+                          .dataset.documentsByTopic.keys
+                          .elementAt(chatUseCase.documentSelected)]!);
+                },
+                messages: chatUseCase.messages,
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }

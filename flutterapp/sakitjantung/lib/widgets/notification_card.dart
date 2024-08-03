@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
+import 'package:sakitjantung/services/firebase_services.dart';
 import 'package:sakitjantung/usecase/noti_listener_usecase.dart';
 
 import '../entities/noti_entity.dart';
@@ -10,12 +11,14 @@ class NotificationCard extends StatelessWidget {
   final String? title;
   final String? text;
   final String time;
+  final int index;
   final NotificationEventEntity event;
   const NotificationCard(
       {super.key,
       required this.title,
       required this.text,
       required this.time,
+      required this.index,
       required this.event});
 
   @override
@@ -31,9 +34,10 @@ class NotificationCard extends StatelessWidget {
               children: [
                 SlidableAction(
                   borderRadius: BorderRadius.circular(10),
-                  onPressed: (_) {
-                    eventsUseCase
-                        .removeEvent(eventsUseCase.convertToEvent(event));
+                  onPressed: (_) async {
+                    await FirebaseService().removeEventFromFirebase(event);
+                    await eventsUseCase.removeEvent(
+                        eventsUseCase.convertToEvent(event), index);
                   },
                   backgroundColor: const Color(0xFFFE4A49),
                   foregroundColor: Colors.white,
@@ -48,11 +52,6 @@ class NotificationCard extends StatelessWidget {
                   margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                   padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
                   decoration: BoxDecoration(
-                    border: Border.all(
-                        width: (nav.dropDownValue == 1) ? 1 : 0,
-                        color: (nav.dropDownValue == 1)
-                            ? Colors.black
-                            : Colors.white),
                     borderRadius: BorderRadius.circular(10),
                     color: Colors.white,
                     boxShadow: [
