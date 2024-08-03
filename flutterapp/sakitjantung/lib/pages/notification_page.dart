@@ -87,17 +87,16 @@ class _NotificationPageState extends State<NotificationPage> {
                 const SizedBox(
                   height: 20,
                 ),
-
-                TextButton(
-                    onPressed: () async {
-                      int res1 = await classifyData(
-                          "Algorithm & Data Structure: Shashi Baka (OOP Lecturer) | Graphs.pptx");
-                      int res2 = await classifyData(
-                          "Ka-ching! Incoming money | Transaction to Hans, RM 10 with Touch n go");
-                      int res3 = await classifyData(
-                          "DuitNow Payment | You have paid RM6.00 to island one cafe and bakery.");
-                    },
-                    child: const Text("SEND")),
+                // TextButton(
+                //     onPressed: () async {
+                //       int res1 = await classifyData(
+                //           "Algorithm & Data Structure: Shashi Baka (OOP Lecturer) | Graphs.pptx");
+                //       int res2 = await classifyData(
+                //           "Ka-ching! Incoming money | Transaction to Hans, RM 10 with Touch n go");
+                //       int res3 = await classifyData(
+                //           "DuitNow Payment | You have paid RM6.00 to island one cafe and bakery.");
+                //     },
+                //     child: const Text("SEND")),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
