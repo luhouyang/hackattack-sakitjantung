@@ -29,7 +29,13 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   //TODO: added stuff
-  Future<List<String>> classifyData(String message) async {
+  Future<int> classifyData(String message) async {
+    Map<String, int> responseClasses = {
+      "NOT TRANSACTION": 0,
+      "MONEY OUT": 1,
+      "MONEY IN": 2
+    };
+
     List<String> resList = [];
 
     final url = Uri.parse('http://47.250.87.162:9000/api/classify');
@@ -43,12 +49,31 @@ class _NotificationPageState extends State<NotificationPage> {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      print('Prediction: ${data['prediction']}');
+      resList.add(data['prediction']);
+      // print('Prediction: ${data['prediction']}');
     } else {
-      print('Failed to load data');
+      resList.add("ERROR");
+      // print('Failed to load data');
     }
 
-    return resList;
+    if (resList[0] == "ERROR") {
+      debugPrint("Something went wong");
+      return -1;
+    } else {
+      if (responseClasses[resList[0]] == 0) {
+        debugPrint("NOT A TRANSACTION");
+        return 0;
+      } else if (responseClasses[resList[0]] == 1) {
+        debugPrint("MONEY OUT");
+        return 1;
+      } else if (responseClasses[resList[0]] == 2) {
+        debugPrint("MONEY IN");
+        return 2;
+      }
+    }
+
+    debugPrint("Something went wong");
+    return -1;
   }
 
   @override
@@ -66,11 +91,11 @@ class _NotificationPageState extends State<NotificationPage> {
                 //TODO: added stuff
                 TextButton(
                     onPressed: () async {
-                      await classifyData(
+                      int res1 = await classifyData(
                           "Algorithm & Data Structure: Shashi Baka (OOP Lecturer) | Graphs.pptx");
-                      await classifyData(
+                      int res2 = await classifyData(
                           "Ka-ching! Incoming money | aelbgla rg gg hehe boi Transaction to Hans, RM 10 with Touch n go");
-                      await classifyData(
+                      int res3 = await classifyData(
                           "DuitNow Payment | You have paid RM6.00 to island one cafe and bakery.");
                     },
                     child: Text("SEND")),

@@ -22,10 +22,10 @@ labels = rawdf.iloc[:, 1]
 
 display(rawdf.head())
 
-vectorizer = TfidfVectorizer(stop_words=None, max_df=1.0)
+vectorizer = TfidfVectorizer(stop_words=None, max_df=1.0, min_df=3)
 vector_words = vectorizer.fit_transform(text)
 
-# print(vectorizer.get_feature_names_out())
+print(vectorizer.get_feature_names_out()) # remove to reduce output, check word space
 
 # X_train, X_test, y_train, y_test = train_test_split(vector_words, labels, test_size=0.2)
 
@@ -66,12 +66,12 @@ predicted_category = predict_category(sample_text)
 print(f'The predicted category is: {predicted_category}')
 
 
-import joblib
-import pickle
+# import joblib
+# import pickle
 
-joblib.dump(clf, 'money_in_out.pkl')
+# joblib.dump(clf, 'money_in_out.pkl')
 
-with open('money_in_out_vectorizer.pkl', 'wb') as f:
-    pickle.dump(vectorizer, f)
+# with open('money_in_out_vectorizer.pkl', 'wb') as f:
+#     pickle.dump(vectorizer, f)
 
 #%%

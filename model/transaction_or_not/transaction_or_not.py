@@ -14,7 +14,8 @@ transaction_or_not_classes = {
 }
 
 
-rawdata = pd.read_csv('transaction-notransaction.csv')
+# rawdata = pd.read_csv('transaction-notransaction.csv')
+rawdata = pd.read_csv('transaction-notransaction-2.csv')
 rawdf = pd.DataFrame(rawdata)
 
 text = rawdf.iloc[:, 0]
@@ -22,10 +23,10 @@ labels = rawdf.iloc[:, 1]
 
 display(rawdf.head())
 
-vectorizer = TfidfVectorizer(stop_words='english', max_df=0.7)
+vectorizer = TfidfVectorizer(stop_words=None, max_df=0.7, min_df=2)
 vector_words = vectorizer.fit_transform(text)
 
-# print(vectorizer.get_feature_names_out())
+print(vectorizer.get_feature_names_out()) # remove to reduce output, check word space
 
 # X_train, X_test, y_train, y_test = train_test_split(vector_words, labels, test_size=0.2)
 
