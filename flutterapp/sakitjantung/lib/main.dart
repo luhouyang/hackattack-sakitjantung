@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sakitjantung/pages/main_page.dart';
 import 'package:sakitjantung/pages/notification_page.dart';
 import 'package:sakitjantung/usecase/navigation_usecase.dart';
 
@@ -28,7 +29,7 @@ class MainApp extends StatelessWidget {
           useMaterial3: true,
         ),
         debugShowCheckedModeBanner: false,
-        home: Scaffold(body: NotificationPage()),
+        home: Scaffold(body: MainPage()),
       ),
     );
   }
