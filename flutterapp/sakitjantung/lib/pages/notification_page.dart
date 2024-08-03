@@ -7,7 +7,7 @@ import 'package:sakitjantung/usecase/noti_listener_usecase.dart';
 import '../usecase/navigation_usecase.dart';
 import '../widgets/notification_card.dart';
 
-import 'package:http/http.dart' as http; //TODO: added stuff
+import 'package:http/http.dart' as http;
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -28,7 +28,6 @@ class _NotificationPageState extends State<NotificationPage> {
     });
   }
 
-  //TODO: added stuff
   Future<int> classifyData(String message) async {
     Map<String, int> responseClasses = {
       "NOT TRANSACTION": 0,
@@ -88,7 +87,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 const SizedBox(
                   height: 20,
                 ),
-                //TODO: added stuff
+
                 TextButton(
                     onPressed: () async {
                       int res1 = await classifyData(
@@ -98,7 +97,7 @@ class _NotificationPageState extends State<NotificationPage> {
                       int res3 = await classifyData(
                           "DuitNow Payment | You have paid RM6.00 to island one cafe and bakery.");
                     },
-                    child: Text("SEND")),
+                    child: const Text("SEND")),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
