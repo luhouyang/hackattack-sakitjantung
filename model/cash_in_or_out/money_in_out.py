@@ -14,7 +14,8 @@ money_in_out_classes = {
 }
 
 
-rawdata = pd.read_csv('moneyin-moneyout.csv')
+# rawdata = pd.read_csv('moneyin-moneyout.csv')
+rawdata = pd.read_csv('moneyin-moneyout-2.csv')
 rawdf = pd.DataFrame(rawdata)
 
 text = rawdf.iloc[:, 0]

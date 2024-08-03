@@ -8,7 +8,9 @@ import joblib
 import pickle
 
 ### remove
-rawdata = pd.read_csv('transaction-notransaction.csv')
+# rawdata = pd.read_csv('transaction-notransaction.csv')
+# rawdata = pd.read_csv('transaction-notransaction-2.csv')
+rawdata = pd.read_csv('transaction-notransaction-3.csv')
 rawdf = pd.DataFrame(rawdata)
 
 text = rawdf.iloc[:, 0]
