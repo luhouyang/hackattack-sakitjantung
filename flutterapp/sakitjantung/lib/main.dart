@@ -1,5 +1,8 @@
+import 'package:encrypt/encrypt.dart' as enc;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sakitjantung/pages/auth_stream.dart';
 import 'package:sakitjantung/services/firebase_services.dart';
@@ -7,7 +10,6 @@ import 'package:sakitjantung/usecase/navigation_usecase.dart';
 
 // Import the generated file
 import 'firebase_options.dart';
-
 import 'usecase/noti_listener_usecase.dart';
 
 void main() async {
@@ -15,6 +17,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await Hive.initFlutter();
+
   runApp(const MainApp());
 }
 

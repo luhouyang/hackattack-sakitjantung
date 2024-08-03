@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:encrypt/encrypt.dart' as enc;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:sakitjantung/entities/noti_entity.dart';
 
 class FirebaseService extends ChangeNotifier {
@@ -33,6 +35,28 @@ class FirebaseService extends ChangeNotifier {
   }
 
   Future<void> saveEventToFirebase(NotificationEventEntity entity) async {
+    // enc.Key? key;
+    // enc.IV? iv;
+
+    // var box = await Hive.openBox("encryptionkey");
+    // if (box.values.isEmpty) {
+    //   key = enc.Key.fromLength(32);
+    //   iv = enc.IV.fromLength(8);
+    //   box.put('salsa20', key);
+    //   box.put('iv', iv);
+    //   debugPrint("Generating Key");
+    // } else {
+    //   key = box.get('salsa20')!;
+    //   iv = box.get('iv')!;
+    // }
+    // final encrypter = enc.Encrypter(enc.Salsa20(key!));
+
+    // final encrypted = encrypter.encrypt(entity.text, iv: iv);
+
+    // debugPrint(encrypted.base64);
+
+    // entity.text = encrypted.base64;
+
     if (currentUserUid == null) {
       debugPrint("User is not authenticated. Cannot save event.");
       return;
@@ -75,7 +99,8 @@ class FirebaseService extends ChangeNotifier {
   }
 
   Future<List<NotificationEventEntity>> loadEventsFromFirebase() async {
-    if (currentUserUid == null) {
+    //TODO: changed here
+    if (getCurrentUserUid().toString().isEmpty) {
       debugPrint("User is not authenticated. Cannot load events.");
       return [];
     }
