@@ -8,8 +8,8 @@ import joblib
 import pickle
 
 ### remove
-# rawdata = pd.read_csv('moneyin-moneyout.csv')
-rawdata = pd.read_csv('moneyin-moneyout-2.csv')
+# rawdata = pd.read_csv('categories-2.csv')
+rawdata = pd.read_csv('categories-3.csv', encoding="latin-1")
 rawdf = pd.DataFrame(rawdata)
 
 text = rawdf.iloc[:, 0]
@@ -17,14 +17,16 @@ labels = rawdf.iloc[:, 1]
 ###
 
 # load vectorizer and vector support machine
-money_in_out_classes = {
-    0: "MONEY OUT",
-    1: "MONEY IN"
+transaction_category_classes = {
+    0: "TRANSPORTATION",
+    1: "ENTERTAIMENT",
+    2: "UTILITIES",
+    3: "FOOD AND BEVERAGE",
+    4: "OTHERS"
 }
+clf = joblib.load('transaction_category.pkl')
 
-clf = joblib.load('money_in_out.pkl')
-
-with open('money_in_out_vectorizer.pkl', 'rb') as f:
+with open('transaction_category_vectorizer.pkl', 'rb') as f:
     vectorizer = pickle.load(f)
 
 
@@ -40,7 +42,7 @@ y_pred = clf.predict(vector_words)
 
 # Evaluate the performance
 accuracy = accuracy_score(y_pred, labels)
-report = classification_report(y_pred, labels, target_names=[money_in_out_classes[0], money_in_out_classes[1]])
+report = classification_report(y_pred, labels, target_names=[transaction_category_classes[0], transaction_category_classes[1], transaction_category_classes[2], transaction_category_classes[3], transaction_category_classes[4]])
 
 print(f'Accuracy: {accuracy:.4f}')
 print('Classification Report:')
@@ -55,10 +57,10 @@ def predict_category(text):
     """
     text_vec = vectorizer.transform([text])
     prediction = clf.predict(text_vec)
-    return money_in_out_classes[prediction[0]]
+    return transaction_category_classes[prediction[0]]
 
 # Example usecase
-sample_text = "DuitNow Transfer is successful! | You have successfully transferred RM 10.00 to MICHAEL TAN"
+sample_text = "Transaction to Ali RM 2"
 predicted_category = predict_category(sample_text)
 print(f'The predicted category is: {predicted_category}')
 #%%

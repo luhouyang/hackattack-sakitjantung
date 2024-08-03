@@ -104,43 +104,52 @@ class NotiListenerUseCase extends ChangeNotifier {
     try {
       if (!uniqueEventIds.contains(event.timestamp.toString())) {
         NotificationEventEntity entity = convertToEntity(event);
+        uniqueEventIds.add(event.timestamp.toString());
+        notifyListeners();
 
         // if (!ignored.contains(entity.packageName)) {
         // check message
         String msg = "${entity.title} | ${entity.text}";
         debugPrint(msg);
-        int res = await AlibabaServices().classifyData(msg);
-        if (res == -1) {
+        List<int> resList = await AlibabaServices().classifyData(msg);
+        if (resList[0] == -1) {
           //TODO: replace with error message
           debugPrint("Connection Timed Out");
-        } else if (res == 0) {
+          return;
+        } else if (resList[0] == 0) {
           notifyListeners();
           return;
-        } else if (res == 1) {
+        } else if (resList[0] == 1) {
           // money in
-          entity.transactionType = res;
+          entity.transactionType = resList[0];
 
           // extract amount
           double amount = extractAmounts(msg)[0];
           entity.amount = amount;
-
-          eventsEntities.add(entity);
-          uniqueEventIds.add(event.timestamp.toString());
-          await firebaseService.saveEventToFirebase(entity);
-        } else if (res == 2) {
+        } else if (resList[0] == 2) {
           // money out
-          entity.transactionType = res;
+          entity.transactionType = resList[0];
 
           // extract amount
           double amount = extractAmounts(msg)[0];
           entity.amount = amount;
-
-          eventsEntities.add(entity);
-          uniqueEventIds.add(event.timestamp.toString());
-          await firebaseService.saveEventToFirebase(entity);
         }
 
-        notifyListeners();
+        if (resList[1] == -1) {
+          //TODO: replace with error message
+          debugPrint("Connection Timed Out");
+          return;
+        } else if (resList[1] == 5) {
+          return;
+        } else {
+          // money in
+          entity.transactionCategory = resList[1];
+
+          eventsEntities.add(entity);
+          uniqueEventIds.add(event.timestamp.toString());
+          await firebaseService.saveEventToFirebase(entity);
+          notifyListeners();
+        }
 
         // }
         debugPrint("onData: ${event.toString()}");

@@ -17,6 +17,7 @@ class NotificationEventEntity {
   bool canTap;
   Map<String, dynamic> raw;
   int transactionType; // 2 for money in, 1 for money out
+  int transactionCategory;
   double amount;
 
   NotificationEventEntity({
@@ -36,6 +37,7 @@ class NotificationEventEntity {
     bool? canTap,
     Map<String, dynamic>? raw,
     int? transactionType,
+    int? transactionCategory,
     double? amount,
   })  : docId = docId ?? '',
         uniqueId = uniqueId ?? '',
@@ -53,6 +55,7 @@ class NotificationEventEntity {
         canTap = canTap ?? false,
         raw = raw ?? {},
         transactionType = transactionType ?? -1,
+        transactionCategory = transactionCategory ?? -1,
         amount = amount ?? 0; // -1 means not classified
 
   // Convert a map to a NotificationEventEntity object
@@ -79,6 +82,7 @@ class NotificationEventEntity {
       canTap: map['canTap'],
       raw: map['raw'],
       transactionType: map['transactionType'],
+      transactionCategory: map['transactionCategory'],
       amount: map['amount'],
     );
   }
@@ -102,6 +106,7 @@ class NotificationEventEntity {
       'canTap': canTap,
       'raw': raw,
       'transactionType': transactionType,
+      'transactionCategory': transactionCategory,
       'amount': amount,
     };
   }
