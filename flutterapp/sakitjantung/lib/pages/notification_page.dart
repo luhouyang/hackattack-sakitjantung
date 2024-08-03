@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sakitjantung/usecase/noti_listener_usecase.dart';
 
 import '../usecase/navigation_usecase.dart';
 import '../widgets/notification_card.dart';
+
+import 'package:http/http.dart' as http; //TODO: added stuff
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -24,6 +28,29 @@ class _NotificationPageState extends State<NotificationPage> {
     });
   }
 
+  //TODO: added stuff
+  Future<List<String>> classifyData(String message) async {
+    List<String> resList = [];
+
+    final url = Uri.parse('http://47.250.87.162:9000/api/classify');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'data': message}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print('Prediction: ${data['prediction']}');
+    } else {
+      print('Failed to load data');
+    }
+
+    return resList;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<NotiListenerUseCase, NavigationUseCase>(
@@ -36,6 +63,13 @@ class _NotificationPageState extends State<NotificationPage> {
                 const SizedBox(
                   height: 20,
                 ),
+                //TODO: added stuff
+                TextButton(
+                    onPressed: () async {
+                      await classifyData(
+                          "Ka-ching! Incoming money | aelbgla rg gg hehe boi Transaction to Hans, RM 10 with Touch n go");
+                    },
+                    child: Text("SEND")),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

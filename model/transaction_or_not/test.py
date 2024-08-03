@@ -1,14 +1,15 @@
 #%%
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
+# from sklearn.feature_extraction.text import TfidfVectorizer
+# from sklearn.model_selection import train_test_split
+# from sklearn.svm import SVC
 
 import pandas as pd
 import joblib
 import pickle
 
 ### remove
-rawdata = pd.read_csv('testdata.csv')
+# rawdata = pd.read_csv('testdata.csv')
+rawdata = pd.read_csv('transaction-notransaction.csv')
 rawdf = pd.DataFrame(rawdata)
 
 text = rawdf.iloc[:, 0]
