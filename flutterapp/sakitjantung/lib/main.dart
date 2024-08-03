@@ -40,7 +40,7 @@ class MainApp extends StatelessWidget {
           useMaterial3: true,
         ),
         debugShowCheckedModeBanner: false,
-        home: Scaffold(body: AuthStreamPage()),
+        home: const Scaffold(body: AuthStreamPage()),
       ),
     );
   }
