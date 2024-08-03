@@ -71,7 +71,7 @@ class _ChatPageState extends State<ChatPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        message!["message"]!,
+                        message["message"]!,
                         style: TextStyle(
                           color: message["sender"] == "user"
                               ? Colors.white

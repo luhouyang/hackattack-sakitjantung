@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'package:encrypt/encrypt.dart' as enc;
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:sakitjantung/services/firebase_services.dart';
 import 'package:sakitjantung/usecase/noti_listener_usecase.dart';
@@ -14,6 +17,8 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
+  Box? box;
+
   @override
   void initState() {
     super.initState();
@@ -21,6 +26,7 @@ class _NotificationPageState extends State<NotificationPage> {
       NotiListenerUseCase eventsUseCase =
           Provider.of<NotiListenerUseCase>(context, listen: false);
       await eventsUseCase.initPlatformState();
+      box = await Hive.openBox("encryptionkey");
       eventsUseCase.initializeEventList();
     });
   }
@@ -77,6 +83,38 @@ class _NotificationPageState extends State<NotificationPage> {
                                 reverse: true,
                                 itemBuilder: (BuildContext context, int idx) {
                                   final entry = e.eventsEntities[idx];
+
+                                  try {
+                                    // get key and iv
+                                    enc.Key? key;
+                                    enc.IV? iv;
+
+                                    if (box!.values.isEmpty) {
+                                      key = enc.Key.fromLength(32);
+                                      iv = enc.IV.fromLength(8);
+                                      box!.put('salsa20', key.base64);
+                                      box!.put('iv', iv.base64);
+                                      debugPrint("Generating Key");
+                                    } else {
+                                      key = enc.Key.fromBase64(
+                                          box!.get('salsa20')!);
+                                      iv = enc.IV.fromBase64(box!.get('iv')!);
+                                    }
+                                    final encrypter =
+                                        enc.Encrypter(enc.Salsa20(key));
+
+                                    final decrypted = encrypter.decrypt(
+                                        enc.Encrypted(base64Decode(entry.text)),
+                                        iv: iv);
+
+                                    debugPrint(decrypted);
+
+                                    entry.text = decrypted;
+                                  } catch (e) {
+                                    debugPrint(
+                                        "Error at notification page: $e");
+                                  }
+
                                   return NotificationCard(
                                     title: entry.title,
                                     text: entry.text,

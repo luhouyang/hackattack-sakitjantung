@@ -35,27 +35,27 @@ class FirebaseService extends ChangeNotifier {
   }
 
   Future<void> saveEventToFirebase(NotificationEventEntity entity) async {
-    // enc.Key? key;
-    // enc.IV? iv;
+    enc.Key? key;
+    enc.IV? iv;
 
-    // var box = await Hive.openBox("encryptionkey");
-    // if (box.values.isEmpty) {
-    //   key = enc.Key.fromLength(32);
-    //   iv = enc.IV.fromLength(8);
-    //   box.put('salsa20', key);
-    //   box.put('iv', iv);
-    //   debugPrint("Generating Key");
-    // } else {
-    //   key = box.get('salsa20')!;
-    //   iv = box.get('iv')!;
-    // }
-    // final encrypter = enc.Encrypter(enc.Salsa20(key!));
+    var box = await Hive.openBox("encryptionkey");
+    if (box.values.isEmpty) {
+      key = enc.Key.fromLength(32);
+      iv = enc.IV.fromLength(8);
+      box.put('salsa20', key.base64);
+      box.put('iv', iv.base64);
+      debugPrint("Generating Key");
+    } else {
+      key = enc.Key.fromBase64(box.get('salsa20')!);
+      iv = enc.IV.fromBase64(box.get('iv')!);
+    }
+    final encrypter = enc.Encrypter(enc.Salsa20(key));
 
-    // final encrypted = encrypter.encrypt(entity.text, iv: iv);
+    final encrypted = encrypter.encrypt(entity.text, iv: iv);
 
-    // debugPrint(encrypted.base64);
+    debugPrint(encrypted.base64);
 
-    // entity.text = encrypted.base64;
+    entity.text = encrypted.base64;
 
     if (currentUserUid == null) {
       debugPrint("User is not authenticated. Cannot save event.");
