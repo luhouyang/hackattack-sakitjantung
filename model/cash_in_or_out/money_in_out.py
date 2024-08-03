@@ -8,13 +8,13 @@ from IPython.display import display
 import pandas as pd
 
 
-transaction_or_not_classes = {
-    0: "NOT TRANSACTION",
-    1: "TRANSACTION"
+money_in_out_classes = {
+    0: "MONEY OUT",
+    1: "MONEY IN"
 }
 
 
-rawdata = pd.read_csv('transaction-notransaction.csv')
+rawdata = pd.read_csv('moneyin-moneyout.csv')
 rawdf = pd.DataFrame(rawdata)
 
 text = rawdf.iloc[:, 0]
@@ -22,7 +22,7 @@ labels = rawdf.iloc[:, 1]
 
 display(rawdf.head())
 
-vectorizer = TfidfVectorizer(stop_words='english', max_df=0.7)
+vectorizer = TfidfVectorizer(stop_words=None, max_df=1.0)
 vector_words = vectorizer.fit_transform(text)
 
 # print(vectorizer.get_feature_names_out())
@@ -42,7 +42,7 @@ y_pred = clf.predict(vector_words)
 
 # Evaluate the performance
 accuracy = accuracy_score(y_pred, labels)
-report = classification_report(y_pred, labels, target_names=[transaction_or_not_classes[0], transaction_or_not_classes[1]])
+report = classification_report(y_pred, labels, target_names=[money_in_out_classes[0], money_in_out_classes[1]])
 
 # accuracy = accuracy_score(y_pred, y_test)
 # report = classification_report(y_pred, y_test, target_names=[transaction_or_not_feature_map[0], transaction_or_not_feature_map[1]])
@@ -58,10 +58,10 @@ def predict_category(text):
     """
     text_vec = vectorizer.transform([text])
     prediction = clf.predict(text_vec)
-    return transaction_or_not_classes[prediction[0]]
+    return money_in_out_classes[prediction[0]]
 
 # Example usage
-sample_text = "Not NASA announced the discovery of new exoplanets. There are chickens on there"
+sample_text = "Ka-ching! Incoming money | RM 25.00 received from MICHAEL TAN for Fund Transfer."
 predicted_category = predict_category(sample_text)
 print(f'The predicted category is: {predicted_category}')
 
@@ -69,9 +69,9 @@ print(f'The predicted category is: {predicted_category}')
 import joblib
 import pickle
 
-joblib.dump(clf, 'transaction_or_not.pkl')
+joblib.dump(clf, 'money_in_out.pkl')
 
-with open('transaction_or_not_vectorizer.pkl', 'wb') as f:
+with open('money_in_out_vectorizer.pkl', 'wb') as f:
     pickle.dump(vectorizer, f)
 
 #%%
