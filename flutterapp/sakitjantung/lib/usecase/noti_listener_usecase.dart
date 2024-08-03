@@ -164,19 +164,19 @@ class NotiListenerUseCase extends ChangeNotifier {
   Future<void> removeEvent(NotificationEvent event, int index) async {
     NotificationEventEntity entity = convertToEntity(event);
 
-    var box = await Hive.openBox("encryptionkey");
+    // var box = await Hive.openBox("encryptionkey");
 
-    List<String> keys = [];
-    List<String> ivs = [];
-    if (box.values.isNotEmpty) {
-      keys = box.get('salsa20')!;
-      ivs = box.get('iv')!;
-      keys.removeAt(index);
-      ivs.removeAt(index);
-      box.deleteAll(['salsa20', 'iv']);
-    }
+    // List<String> keys = [];
+    // List<String> ivs = [];
+    // if (box.values.isNotEmpty) {
+    //   keys = box.get('salsa20')!;
+    //   ivs = box.get('iv')!;
+    //   keys.removeAt(index);
+    //   ivs.removeAt(index);
+    //   box.deleteAll(['salsa20', 'iv']);
+    // }
 
-    box.putAll({'salsa20': keys, 'iv': ivs});
+    // box.putAll({'salsa20': keys, 'iv': ivs});
 
     eventsEntities.removeWhere((e) => e.uniqueId == entity.uniqueId);
     uniqueEventIds.remove(entity.uniqueId);

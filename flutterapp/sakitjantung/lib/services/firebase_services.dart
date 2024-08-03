@@ -39,32 +39,32 @@ class FirebaseService extends ChangeNotifier {
     enc.IV? iv;
 
     var box = await Hive.openBox("encryptionkey");
-    // if (box.values.isEmpty) {
-    //   key = enc.Key.fromLength(32);
-    //   iv = enc.IV.fromLength(8);
-    //   box.put('salsa20', key.base64);
-    //   box.put('iv', iv.base64);
-    //   debugPrint("Generating Key");
-    // } else {
-    //   key = enc.Key.fromBase64(box.get('salsa20')!);
-    //   iv = enc.IV.fromBase64(box.get('iv')!);
-    // }
-    debugPrint("Generating Key");
-    key = enc.Key.fromLength(32);
-    iv = enc.IV.fromLength(8);
-
-    List<String> keys = [];
-    List<String> ivs = [];
-    if (box.values.isNotEmpty) {
-      keys = box.get('salsa20')!;
-      ivs = box.get('iv')!;
-      box.deleteAll(['salsa20', 'iv']);
+    if (box.values.isEmpty) {
+      key = enc.Key.fromLength(32);
+      iv = enc.IV.fromLength(8);
+      box.put('salsa20', key.base64);
+      box.put('iv', iv.base64);
+      debugPrint("Generating Key");
+    } else {
+      key = enc.Key.fromBase64(box.get('salsa20')!);
+      iv = enc.IV.fromBase64(box.get('iv')!);
     }
+    // debugPrint("Generating Key");
+    // key = enc.Key.fromLength(32);
+    // iv = enc.IV.fromLength(8);
 
-    keys.add(key.base64);
-    ivs.add(iv.base64);
+    // List<String> keys = [];
+    // List<String> ivs = [];
+    // if (box.values.isNotEmpty) {
+    //   keys = box.get('salsa20')!;
+    //   ivs = box.get('iv')!;
+    //   box.deleteAll(['salsa20', 'iv']);
+    // }
 
-    box.putAll({'salsa20': keys, 'iv': ivs});
+    // keys.add(key.base64);
+    // ivs.add(iv.base64);
+
+    // box.putAll({'salsa20': keys, 'iv': ivs});
 
     final encrypter = enc.Encrypter(enc.Salsa20(key));
     final encrypted = encrypter.encrypt(entity.text, iv: iv);
