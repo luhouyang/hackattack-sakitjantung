@@ -23,6 +23,22 @@ class _MainPageState extends State<MainPage> {
     return Consumer2<NotiListenerUseCase, NavigationUseCase>(
         builder: (context, notiUse, navUse, child) {
       return Scaffold(
+        appBar: AppBar(
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 15.0),
+            child: Image.asset(
+              "assets/logo.png",
+            ),
+          ),
+          centerTitle: true,
+          title: Text(
+            changeTitle(navUse.bottomNavigationIdx),
+            style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: MyColours.primaryColour,
+                fontSize: 26),
+          ),
+        ),
         body: changePage(navUse.bottomNavigationIdx),
         floatingActionButton: FloatingActionButton(
           foregroundColor: Colors.white,
@@ -69,6 +85,18 @@ class _MainPageState extends State<MainPage> {
       return const ChatPage();
     } else {
       return const ProfilePage();
+    }
+  }
+
+  String changeTitle(int idx) {
+    if (idx == 0) {
+      return "STATISTICS";
+    } else if (idx == 1) {
+      return "NOTIFICATION";
+    } else if (idx == 2) {
+      return "CHATBOT";
+    } else {
+      return "PROFILE";
     }
   }
 }

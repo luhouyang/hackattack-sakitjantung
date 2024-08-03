@@ -40,3 +40,6 @@ flutter:
   uses-material-design: true
   assets:
     - .env
+    - assets/birb.svg
+    - assets/logo.jpg
+    - assets/logo.png

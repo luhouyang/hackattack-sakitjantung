@@ -25,13 +25,16 @@ class LLM {
     final promptTemplate = ChatPromptTemplate.fromTemplates(const [
       (
         ChatMessageType.system,
-        'Answer the question based on only the following context:\n{context}',
+        'You are an AI financial planning assistant that is being trained with large amount of data. Answer the question based on only the following context:\n{context}',
       ),
       (ChatMessageType.human, '{question}'),
     ]);
 
     // 4. Define the final chain
-    final model = ChatOpenAI(apiKey: openaiApiKey);
+    final model = ChatOpenAI(
+        apiKey: openaiApiKey,
+        defaultOptions: ChatOpenAIOptions(
+            model: "gpt-3.5-turbo", temperature: 0.7, maxTokens: 500));
     const outputParser = StringOutputParser<ChatResult>();
     final chain =
         setupAndRetrieval.pipe(promptTemplate).pipe(model).pipe(outputParser);

@@ -25,72 +25,59 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              "STATISTICS",
-              style: TextStyle(
-                color: Colors.red[900],
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
-              ),
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5.0),
+            child: SegmentedButton(
+              segments: titles,
+              selectedIndex: _currentPage,
+              onSegmentTapped: (index) {
+                setState(() {
+                  _currentPage = index;
+                  _pageController.animateToPage(
+                    index,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                });
+              },
             ),
-            const SizedBox(
-              height: 5,
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: PageView(
+              controller: _pageController,
+              physics: const NeverScrollableScrollPhysics(),
+              children: const [
+                Column(
+                  children: [
+                    Expanded(
+                        child: ExpensesPieChart(
+                            numberOfCategories: 5,
+                            amounts: [500, 750, 100, 300, 400],
+                            names: ['A', 'B', 'C', 'D', 'E'])),
+                    SizedBox(height: 10),
+                    ExpensesData(),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Expanded(
+                        child: CashflowPieChart(
+                            numberOfCategories: 5,
+                            amounts: [200, 400, 150, 600, 700],
+                            names: ['A', 'B', 'C', 'D', 'E'])),
+                    CashflowData(),
+                  ],
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5.0),
-              child: SegmentedButton(
-                segments: titles,
-                selectedIndex: _currentPage,
-                onSegmentTapped: (index) {
-                  setState(() {
-                    _currentPage = index;
-                    _pageController.animateToPage(
-                      index,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                children: const [
-                  Column(
-                    children: [
-                      Expanded(
-                          child: ExpensesPieChart(
-                              numberOfCategories: 5,
-                              amounts: [500, 750, 100, 300, 400],
-                              names: ['A', 'B', 'C', 'D', 'E'])),
-                      SizedBox(height: 10),
-                      ExpensesData(),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Expanded(
-                          child: CashflowPieChart(
-                              numberOfCategories: 5,
-                              amounts: [200, 400, 150, 600, 700],
-                              names: ['A', 'B', 'C', 'D', 'E'])),
-                      CashflowData(),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

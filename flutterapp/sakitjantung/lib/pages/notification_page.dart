@@ -43,9 +43,6 @@ class _NotificationPageState extends State<NotificationPage> {
             padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Column(
               children: [
-                const SizedBox(
-                  height: 20,
-                ),
                 // TextButton(
                 //     onPressed: () async {
                 //       int res1 = await classifyData(
@@ -56,18 +53,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 //           "DuitNow Payment | You have paid RM6.00 to island one cafe and bakery.");
                 //     },
                 //     child: const Text("SEND")),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Notification List",
-                      style: TextStyle(
-                          color: Colors.blue[900],
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
+
                 StreamBuilder(
                   stream: FirebaseFirestore.instance
                       .collection('users')

@@ -18,8 +18,6 @@ class _ChatPageState extends State<ChatPage> {
       builder: (context, chatUseCase, child) {
         return Column(
           children: [
-            const Text('Choose a topic'),
-            const SizedBox(height: 10.0),
             DropdownButton<int>(
               value: chatUseCase.documentSelected,
               onChanged: (int? newValue) {
@@ -58,6 +56,9 @@ class _ChatPageState extends State<ChatPage> {
                 messages: chatUseCase.messages,
               ),
             ),
+            const SizedBox(
+              height: 25,
+            )
           ],
         );
       },

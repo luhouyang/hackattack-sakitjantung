@@ -17,7 +17,7 @@ class ChatUseCase extends ChangeNotifier {
 
   dash.ChatUser bot = dash.ChatUser(
     id: '0',
-    firstName: 'NigaBot',
+    firstName: 'ChatBot',
   );
 
   List<dash.ChatMessage> messages = <dash.ChatMessage>[];
