@@ -24,7 +24,7 @@ class _NotificationPageState extends State<NotificationPage> {
       NotiListenerUseCase eventsUseCase =
           Provider.of<NotiListenerUseCase>(context, listen: false);
       await eventsUseCase.initPlatformState();
-      eventsUseCase.startListening(); // Start listening for notifications
+      eventsUseCase.initializeEventList();
     });
   }
 
@@ -84,7 +84,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 ),
                 (n.dropDownValue == 0)
                     ? FutureBuilder(
-                        future: e.loadEvents(),
+                        future: e.loadEventsFromFirebase(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
