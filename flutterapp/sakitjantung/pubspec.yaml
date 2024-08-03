@@ -19,6 +19,11 @@ dependencies:
   firebase_auth: ^5.1.3
   cloud_firestore: ^5.2.0
   firebase_core: ^3.3.0
+  langchain: ^0.7.4
+  langchain_community: ^0.3.0
+  langchain_openai: ^0.7.0
+  dash_chat_2: ^0.0.21
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -27,3 +32,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - .env
