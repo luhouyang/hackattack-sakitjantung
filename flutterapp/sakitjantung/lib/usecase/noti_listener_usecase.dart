@@ -107,51 +107,50 @@ class NotiListenerUseCase extends ChangeNotifier {
         uniqueEventIds.add(event.timestamp.toString());
         notifyListeners();
 
-        // if (!ignored.contains(entity.packageName)) {
-        // check message
-        String msg = "${entity.title} | ${entity.text}";
-        debugPrint(msg);
-        List<int> resList = await AlibabaServices().classifyData(msg);
-        if (resList[0] == -1) {
-          //TODO: replace with error message
-          debugPrint("Connection Timed Out");
-          return;
-        } else if (resList[0] == 0) {
-          notifyListeners();
-          return;
-        } else if (resList[0] == 1) {
-          // money in
-          entity.transactionType = resList[0];
+        if (!ignored.contains(entity.packageName)) {
+          // check message
+          String msg = "${entity.title} | ${entity.text}";
+          debugPrint(msg);
+          List<int> resList = await AlibabaServices().classifyData(msg);
+          if (resList[0] == -1) {
+            //TODO: replace with error message
+            debugPrint("Connection Timed Out");
+            return;
+          } else if (resList[0] == 0) {
+            notifyListeners();
+            return;
+          } else if (resList[0] == 1) {
+            // money in
+            entity.transactionType = resList[0];
 
-          // extract amount
-          double amount = extractAmounts(msg)[0];
-          entity.amount = amount;
-        } else if (resList[0] == 2) {
-          // money out
-          entity.transactionType = resList[0];
+            // extract amount
+            double amount = extractAmounts(msg)[0];
+            entity.amount = amount;
+          } else if (resList[0] == 2) {
+            // money out
+            entity.transactionType = resList[0];
 
-          // extract amount
-          double amount = extractAmounts(msg)[0];
-          entity.amount = amount;
+            // extract amount
+            double amount = extractAmounts(msg)[0];
+            entity.amount = amount;
+          }
+
+          if (resList[1] == -1) {
+            //TODO: replace with error message
+            debugPrint("Connection Timed Out");
+            return;
+          } else if (resList[1] == 5) {
+            return;
+          } else {
+            // money in
+            entity.transactionCategory = resList[1];
+
+            eventsEntities.add(entity);
+            uniqueEventIds.add(event.timestamp.toString());
+            await firebaseService.saveEventToFirebase(entity);
+            notifyListeners();
+          }
         }
-
-        if (resList[1] == -1) {
-          //TODO: replace with error message
-          debugPrint("Connection Timed Out");
-          return;
-        } else if (resList[1] == 5) {
-          return;
-        } else {
-          // money in
-          entity.transactionCategory = resList[1];
-
-          eventsEntities.add(entity);
-          uniqueEventIds.add(event.timestamp.toString());
-          await firebaseService.saveEventToFirebase(entity);
-          notifyListeners();
-        }
-
-        // }
         debugPrint("onData: ${event.toString()}");
       } else {
         debugPrint("Duplicate notification received: ${event.toString()}");
