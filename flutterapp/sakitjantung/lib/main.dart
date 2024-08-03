@@ -5,19 +5,22 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sakitjantung/pages/auth_stream.dart';
 import 'package:sakitjantung/services/firebase_services.dart';
+import 'package:sakitjantung/usecase/chat_usecase.dart';
 import 'package:sakitjantung/usecase/navigation_usecase.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Import the generated file
 import 'firebase_options.dart';
 import 'usecase/noti_listener_usecase.dart';
 
-void main() async {
+Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await Hive.initFlutter();
 
+  await dotenv.load(fileName: ".env");
   runApp(const MainApp());
 }
 
@@ -36,7 +39,10 @@ class MainApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => FirebaseService(),
-        )
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ChatUseCase(),
+        ),
       ],
       child: MaterialApp(
         theme: ThemeData(
