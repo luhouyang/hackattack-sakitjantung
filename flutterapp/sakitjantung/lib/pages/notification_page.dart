@@ -92,22 +92,22 @@ class _NotificationPageState extends State<NotificationPage> {
                               enc.Key? key;
                               enc.IV? iv;
 
-                              // if (box!.values.isEmpty) {
-                              //   key = enc.Key.fromLength(32);
-                              //   iv = enc.IV.fromLength(8);
-                              //   box!.put('salsa20', key.base64);
-                              //   box!.put('iv', iv.base64);
-                              //   debugPrint("Generating Key");
-                              // } else {
-                              //   key = enc.Key.fromBase64(
-                              //       box!.get('salsa20')!);
-                              //   iv = enc.IV.fromBase64(box!.get('iv')!);
-                              // }
-                              List<String> keys = box!.get('salsa20')!;
-                              List<String> ivs = box!.get('iv')!;
+                              if (box!.values.isEmpty) {
+                                key = enc.Key.fromLength(32);
+                                iv = enc.IV.fromLength(8);
+                                box!.put('salsa20', key.base64);
+                                box!.put('iv', iv.base64);
+                                debugPrint("Generating Key");
+                              } else {
+                                key = enc.Key.fromBase64(
+                                    box!.get('salsa20')!);
+                                iv = enc.IV.fromBase64(box!.get('iv')!);
+                              }
+                              // List<String> keys = box!.get('salsa20')!;
+                              // List<String> ivs = box!.get('iv')!;
 
-                              key = enc.Key.fromBase64(keys[idx]);
-                              iv = enc.IV.fromBase64(ivs[idx]);
+                              // key = enc.Key.fromBase64(keys[idx]);
+                              // iv = enc.IV.fromBase64(ivs[idx]);
 
                               final encrypter = enc.Encrypter(enc.Salsa20(key));
                               final decrypted = encrypter.decrypt(
