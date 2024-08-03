@@ -160,4 +160,6 @@ class NotiListenerUseCase extends ChangeNotifier {
       canTap: entity.canTap,
     );
   }
+
+  loadEventsFromFirebase() {}
 }
