@@ -20,21 +20,25 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             const Text('Choose a topic'),
             const SizedBox(height: 10.0),
-            Wrap(
-              spacing: 5.0,
-              children: List<Widget>.generate(
+            DropdownButton<int>(
+              value: chatUseCase.documentSelected,
+              onChanged: (int? newValue) {
+                if (newValue != null) {
+                  chatUseCase.changeSelectedDocument(newValue);
+                }
+              },
+              items: List<DropdownMenuItem<int>>.generate(
                 chatUseCase.dataset.documentsByTopic.length,
                 (int index) {
-                  return ChoiceChip(
-                    label: Text(chatUseCase.dataset.documentsByTopic.keys
-                        .elementAt(index)),
-                    selected: chatUseCase.documentSelected == index,
-                    onSelected: (bool selected) {
-                      chatUseCase.changeSelectedDocument(index);
-                    },
+                  return DropdownMenuItem<int>(
+                    value: index,
+                    child: Text(
+                      chatUseCase.dataset.documentsByTopic.keys
+                          .elementAt(index),
+                    ),
                   );
                 },
-              ).toList(),
+              ),
             ),
             Expanded(
               child: DashChat(

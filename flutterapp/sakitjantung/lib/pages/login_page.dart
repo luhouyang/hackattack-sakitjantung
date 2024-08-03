@@ -135,10 +135,10 @@ class _LoginPageState extends State<LoginPage> {
                                   style: const TextStyle(fontSize: 16),
                                   children: <TextSpan>[
                                 const TextSpan(
-                                    text: "Create a new account ",
+                                    text: "Already have an account? ",
                                     style: TextStyle(color: Colors.black)),
                                 TextSpan(
-                                    text: "Here",
+                                    text: "Login",
                                     style: TextStyle(
                                       color: MyColours.primaryColour,
                                     ),
@@ -156,10 +156,10 @@ class _LoginPageState extends State<LoginPage> {
                                   style: const TextStyle(fontSize: 16),
                                   children: <TextSpan>[
                                 const TextSpan(
-                                    text: "Already have an account? ",
+                                    text: "Create a new account ",
                                     style: TextStyle(color: Colors.black)),
                                 TextSpan(
-                                    text: "Login",
+                                    text: "Here",
                                     style: TextStyle(
                                       color: MyColours.primaryColour,
                                     ),
