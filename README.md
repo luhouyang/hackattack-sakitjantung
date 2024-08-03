@@ -1,6 +1,5 @@
 # Sakit Jantung
 
----
 
 **Hack Attack 2024**
 
