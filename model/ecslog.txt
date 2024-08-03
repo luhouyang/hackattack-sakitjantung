@@ -1,0 +1,16 @@
+1. Create ECS instance (Ubuntu 22.0.4, 2 cores, 4GB ram)
+
+1. Configure
+
+```
+sudo apt-get update
+
+python3 -m venv hackattack
+source hackattack/bin/activate
+
+pip install pandas
+pip install -U scikit-learn
+pip install Flask
+```
+
+1. Create folder
