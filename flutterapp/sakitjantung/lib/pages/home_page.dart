@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sakitjantung/entities/noti_entity.dart';
 import 'package:sakitjantung/widgets/cashflow_data.dart';
 import 'package:sakitjantung/widgets/piechart_cashflow.dart';
 import 'package:sakitjantung/widgets/piechart_expenses.dart';
@@ -12,10 +15,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int touchedIndex = -1;
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPage = 0;
-  List<String> titles = ['Expense', 'Cashflow']; // Updated title here
+  final List<String> titles = ['Expense', 'Cashflow'];
 
   @override
   void dispose() {
@@ -23,61 +25,176 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  List<dynamic> calculateSubTotal(
+      List<NotificationEventEntity> snapshot, int idx) {
+    double sum = 0;
+    int counter = 0;
+    for (var e in snapshot) {
+      if (e.transactionType == 1 && e.transactionCategory == idx) {
+        sum += e.amount;
+        counter++;
+      }
+    }
+    return [sum, counter];
+  }
+
+  List<dynamic> calculateSubTotaltt(List<NotificationEventEntity> snapshot) {
+    double incomeSum = 0;
+    double expenseSum = 0;
+
+    for (var e in snapshot) {
+      if (e.transactionType == 1) {
+        expenseSum += e.amount;
+      } else if (e.transactionType == 2) {
+        incomeSum += e.amount;
+      }
+    }
+    return [incomeSum, expenseSum];
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(15.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5.0),
-            child: SegmentedButton(
-              segments: titles,
-              selectedIndex: _currentPage,
-              onSegmentTapped: (index) {
-                setState(() {
-                  _currentPage = index;
-                  _pageController.animateToPage(
-                    index,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                });
-              },
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              child: SegmentedButton(
+                segments: titles,
+                selectedIndex: _currentPage,
+                onSegmentTapped: (index) {
+                  setState(() {
+                    _currentPage = index;
+                    _pageController.animateToPage(
+                      index,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  });
+                },
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              children: const [
-                Column(
-                  children: [
-                    Expanded(
-                        child: ExpensesPieChart(
-                            numberOfCategories: 5,
-                            amounts: [500, 750, 100, 300, 400],
-                            names: ['A', 'B', 'C', 'D', 'E'])),
-                    SizedBox(height: 10),
-                    ExpensesData(),
-                  ],
-                ),
-                Column(
-                  children: [
-                    Expanded(
-                        child: CashflowPieChart(
-                            numberOfCategories: 5,
-                            amounts: [200, 400, 150, 600, 700],
-                            names: ['A', 'B', 'C', 'D', 'E'])),
-                    CashflowData(),
-                  ],
-                ),
-              ],
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  // Expense Page
+                  StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(FirebaseAuth.instance.currentUser!.uid)
+                        .collection('events')
+                        .orderBy('createAt')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text("Error: ${snapshot.error}"));
+                      } else {
+                        List<NotificationEventEntity> events = snapshot
+                            .data!.docs
+                            .map((doc) => NotificationEventEntity.fromMap(
+                                doc.data() as Map<String, dynamic>))
+                            .toList();
+
+                        // Calculate subtotals for each category
+                        List<dynamic> transportationSum =
+                            calculateSubTotal(events, 0);
+                        List<dynamic> entertainmentSum =
+                            calculateSubTotal(events, 1);
+                        List<dynamic> utilitiesSum =
+                            calculateSubTotal(events, 2);
+                        List<dynamic> foodAndBeveragesSum =
+                            calculateSubTotal(events, 3);
+                        List<dynamic> othersSum = calculateSubTotal(events, 4);
+
+                        return Column(
+                          children: [
+                            Expanded(
+                              child: ExpensesPieChart(
+                                numberOfCategories: 5,
+                                amounts: [
+                                  transportationSum[0],
+                                  entertainmentSum[0],
+                                  utilitiesSum[0],
+                                  foodAndBeveragesSum[0],
+                                  othersSum[0]
+                                ],
+                                names: const [
+                                  'Transportation',
+                                  'Entertainment',
+                                  'Utilities',
+                                  'Food & Beverages',
+                                  'Others'
+                                ],
+                              ),
+                            ),
+                            ExpensesData(
+                              transportationSum: transportationSum,
+                              entertainmentSum: entertainmentSum,
+                              utilitiesSum: utilitiesSum,
+                              foodAndBeveragesSum: foodAndBeveragesSum,
+                              othersSum: othersSum,
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                  // Cashflow Page
+                  StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(FirebaseAuth.instance.currentUser!.uid)
+                        .collection('events')
+                        .orderBy('createAt')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text("Error: ${snapshot.error}"));
+                      } else {
+                        List<NotificationEventEntity> events = snapshot
+                            .data!.docs
+                            .map((doc) => NotificationEventEntity.fromMap(
+                                doc.data() as Map<String, dynamic>))
+                            .toList();
+
+                        // Calculate cashflow sums (income and expenses)
+                        List<dynamic> cashflowSums =
+                            calculateSubTotaltt(events);
+
+                        return Column(
+                          children: [
+                            Expanded(
+                              child: CashflowPieChart(
+                                amounts: [
+                                  cashflowSums[0], // income
+                                  cashflowSums[1], // expenses
+                                ],
+                                names: const ['Income', 'Expenses'],
+                              ),
+                            ),
+                            CashflowData(
+                              incomeSum: cashflowSums[0],
+                              expensesSum: cashflowSums[1],
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

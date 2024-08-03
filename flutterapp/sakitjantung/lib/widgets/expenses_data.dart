@@ -1,62 +1,84 @@
 import 'package:flutter/material.dart';
 
 class ExpensesData extends StatefulWidget {
-  const ExpensesData({super.key});
+  final List<dynamic> transportationSum;
+  final List<dynamic> entertainmentSum;
+  final List<dynamic> utilitiesSum;
+  final List<dynamic> foodAndBeveragesSum;
+  final List<dynamic> othersSum;
+
+  const ExpensesData({
+    super.key,
+    required this.transportationSum,
+    required this.entertainmentSum,
+    required this.utilitiesSum,
+    required this.foodAndBeveragesSum,
+    required this.othersSum,
+  });
 
   @override
   State<ExpensesData> createState() => _ExpensesDataState();
 }
 
 class _ExpensesDataState extends State<ExpensesData> {
-  final List<ExpenseItemData> expenses = [
-    ExpenseItemData(
-        Icons.sports_basketball, 'Dribbble', 'Subscribe - 24 Feb', -173),
-    ExpenseItemData(Icons.extension, 'Figma', 'Subscribe - 21 Feb', -173),
-    ExpenseItemData(Icons.fastfood, 'Food', 'Fee - 22 Feb', -173),
-    ExpenseItemData(Icons.shopping_cart, 'Shopping', 'Groceries - 25 Feb', -89),
-  ];
+  late final List<ExpenseItemData> expenses;
+
+  @override
+  void initState() {
+    super.initState();
+    expenses = [
+      ExpenseItemData(
+          Icons.car_crash_rounded,
+          'Transportation',
+          'Transaction: ${widget.transportationSum[1]}',
+          widget.transportationSum[0]),
+      ExpenseItemData(
+          Icons.movie,
+          'Entertainment',
+          'Transaction: ${widget.entertainmentSum[1]}',
+          widget.entertainmentSum[0]),
+      ExpenseItemData(Icons.water, 'Utilities',
+          'Transaction: ${widget.utilitiesSum[1]}', widget.utilitiesSum[0]),
+      ExpenseItemData(
+          Icons.food_bank,
+          'Food & Beverages',
+          'Transaction: ${widget.foodAndBeveragesSum[1]}',
+          widget.foodAndBeveragesSum[0]),
+      ExpenseItemData(Icons.abc, 'Other', 'Transaction: ${widget.othersSum[1]}',
+          widget.othersSum[0]),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Top Expenses',
+              'Expenses',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            TextButton(
-              onPressed: () {
-                // Handle 'See all' action
-              },
-              child: Text('See all'),
-            ),
           ],
         ),
-        SizedBox(height: 16),
-        Container(
+        const SizedBox(height: 16),
+        SizedBox(
           height: 200, // Adjust this height as needed
           child: ListView.builder(
             itemCount: expenses.length,
             itemBuilder: (context, index) {
               return Padding(
-                padding: EdgeInsets.only(bottom: 16),
-                child: Opacity(
-                  opacity: index < 3
-                      ? 1.0
-                      : 0.5, // Fade out items after the first three
-                  child: ExpenseItem(
-                    icon: expenses[index].icon,
-                    name: expenses[index].name,
-                    description: expenses[index].description,
-                    amount: expenses[index].amount,
-                  ),
+                padding: const EdgeInsets.only(bottom: 16),
+                child: ExpenseItem(
+                  icon: expenses[index].icon,
+                  name: expenses[index].name,
+                  description: expenses[index].description,
+                  amount: expenses[index].amount,
                 ),
               );
             },
@@ -71,7 +93,7 @@ class ExpenseItemData {
   final IconData icon;
   final String name;
   final String description;
-  final int amount;
+  final double amount;
 
   ExpenseItemData(this.icon, this.name, this.description, this.amount);
 }
@@ -80,7 +102,7 @@ class ExpenseItem extends StatelessWidget {
   final IconData icon;
   final String name;
   final String description;
-  final int amount;
+  final double amount;
 
   const ExpenseItem({
     Key? key,
@@ -119,7 +141,7 @@ class ExpenseItem extends StatelessWidget {
           ),
         ),
         Text(
-          '\$$amount',
+          '- RM ${amount.toStringAsFixed(2)}',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.red,

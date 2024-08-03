@@ -67,7 +67,7 @@ class _ExpensesPieChartState extends State<ExpensesPieChart> {
                 ),
                 borderData: FlBorderData(show: false),
                 sectionsSpace: 0,
-                centerSpaceRadius: 47.03, // Adjust as needed
+                centerSpaceRadius: 55, // Adjust as needed
                 sections: _showingSections(data),
               ),
             ),
@@ -94,9 +94,9 @@ class _ExpensesPieChartState extends State<ExpensesPieChart> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '\$${totalExpenses.toStringAsFixed(2)}',
+                  'RM${totalExpenses.toStringAsFixed(2)}',
                   style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
@@ -137,7 +137,7 @@ class _ExpensesPieChartState extends State<ExpensesPieChart> {
     return List.generate(data.length, (i) {
       final isTouched = i == touchedIndex;
       final double fontSize = isTouched ? 20 : 16;
-      final double radius = isTouched ? 94.05 : 85.5;
+      final double radius = isTouched ? 80 : 75;
 
       return PieChartSectionData(
         color: data[i]['color'],
@@ -184,6 +184,6 @@ class _ExpensesPieChartState extends State<ExpensesPieChart> {
   String _getTooltipMessage(int index, List<Map<String, dynamic>> data) {
     if (index < 0 || index >= data.length) return '';
     final dataItem = data[index];
-    return '${dataItem['value'].toStringAsFixed(1)}% - ${dataItem['label']}\n\$${dataItem['amount']}';
+    return '${dataItem['value'].toStringAsFixed(1)}% - ${dataItem['label']}\n\RM${dataItem['amount']}';
   }
 }

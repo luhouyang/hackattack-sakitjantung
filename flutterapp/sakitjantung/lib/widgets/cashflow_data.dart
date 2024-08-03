@@ -1,65 +1,58 @@
 import 'package:flutter/material.dart';
 
 class CashflowData extends StatefulWidget {
-  const CashflowData({super.key});
+  final double incomeSum;
+  final double expensesSum;
+
+  const CashflowData({
+    super.key,
+    required this.incomeSum,
+    required this.expensesSum,
+  });
 
   @override
   State<CashflowData> createState() => _CashflowDataState();
 }
 
 class _CashflowDataState extends State<CashflowData> {
-  final List<CashflowItemData> cashflows = [
-    CashflowItemData(Icons.work, 'Salary', 'Monthly - 1 Mar', 3000),
-    CashflowItemData(Icons.attach_money, 'Freelance', 'Project - 15 Feb', 500),
-    CashflowItemData(
-        Icons.account_balance, 'Investments', 'Dividends - 28 Feb', 200),
-    CashflowItemData(Icons.card_giftcard, 'Bonus', 'Performance - 5 Mar', 1000),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Top Cashflows',
+              'Cashflows',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            TextButton(
-              onPressed: () {
-                // Handle 'See all' action
-              },
-              child: Text('See all'),
-            ),
           ],
         ),
-        SizedBox(height: 16),
-        Container(
+        const SizedBox(height: 16),
+        SizedBox(
           height: 200, // Adjust this height as needed
-          child: ListView.builder(
-            itemCount: cashflows.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: EdgeInsets.only(bottom: 16),
-                child: Opacity(
-                  opacity: index < 3
-                      ? 1.0
-                      : 0.5, // Fade out items after the first three
-                  child: CashflowItem(
-                    icon: cashflows[index].icon,
-                    name: cashflows[index].name,
-                    description: cashflows[index].description,
-                    amount: cashflows[index].amount,
-                  ),
-                ),
-              );
-            },
+          child: ListView(
+            children: [
+              CashflowItem(
+                icon: Icons.attach_money, // Icon for Total Income
+                name: 'Total Income',
+                description: 'Total Income for this period',
+                amount: widget.incomeSum,
+                color: Colors.green,
+              ),
+              const SizedBox(height: 10),
+              CashflowItem(
+                icon: Icons.money_off, // Icon for Total Expenses
+                name: 'Total Expenses',
+                description: 'Total Expenses for this period',
+                amount: widget.expensesSum,
+                color: Colors.red,
+              ),
+            ],
           ),
         ),
       ],
@@ -67,20 +60,12 @@ class _CashflowDataState extends State<CashflowData> {
   }
 }
 
-class CashflowItemData {
-  final IconData icon;
-  final String name;
-  final String description;
-  final int amount;
-
-  CashflowItemData(this.icon, this.name, this.description, this.amount);
-}
-
 class CashflowItem extends StatelessWidget {
   final IconData icon;
   final String name;
   final String description;
-  final int amount;
+  final double amount;
+  final Color color;
 
   const CashflowItem({
     Key? key,
@@ -88,41 +73,47 @@ class CashflowItem extends StatelessWidget {
     required this.name,
     required this.description,
     required this.amount,
+    required this.color,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    String displayAmount = color == Colors.red
+        ? '- RM ${amount.toStringAsFixed(2)}'
+        : 'RM ${amount.toStringAsFixed(2)}';
+
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color:
+                color.withOpacity(0.2), // Use color with opacity for background
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: Colors.black),
+          child: Icon(icon, color: color),
         ),
-        SizedBox(width: 16),
+        const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 name,
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               Text(
                 description,
-                style: TextStyle(color: Colors.grey),
+                style: const TextStyle(color: Colors.grey),
               ),
             ],
           ),
         ),
         Text(
-          '+\$$amount',
+          displayAmount,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.green,
+            color: color,
           ),
         ),
       ],

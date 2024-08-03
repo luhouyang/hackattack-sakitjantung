@@ -43,14 +43,14 @@ class _NotificationPageState extends State<NotificationPage> {
             padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Column(
               children: [
-                TextButton(
-                  onPressed: () async {
-                    debugPrint("Starting.....");
-                    await f.saveEventsToFirebaseWithDelay(f.dummyData);
-                    debugPrint("Done hehehaha");
-                  },
-                  child: Text("Hehehaha"),
-                ),
+                // TextButton(
+                //   onPressed: () async {
+                //     debugPrint("Starting.....");
+                //     await f.saveEventsToFirebaseWithDelay(f.dummyData);
+                //     debugPrint("Done hehehaha");
+                //   },
+                //   child: Text("Hehehaha"),
+                // ),
                 // TextButton(
                 //     onPressed: () async {
                 //       int res1 = await classifyData(
@@ -99,8 +99,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                 box!.put('iv', iv.base64);
                                 debugPrint("Generating Key");
                               } else {
-                                key = enc.Key.fromBase64(
-                                    box!.get('salsa20')!);
+                                key = enc.Key.fromBase64(box!.get('salsa20')!);
                                 iv = enc.IV.fromBase64(box!.get('iv')!);
                               }
                               // List<String> keys = box!.get('salsa20')!;

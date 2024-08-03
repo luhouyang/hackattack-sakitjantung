@@ -2,13 +2,11 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class CashflowPieChart extends StatefulWidget {
-  final int numberOfCategories;
   final List<double> amounts;
   final List<String> names;
 
   const CashflowPieChart({
     super.key,
-    required this.numberOfCategories,
     required this.amounts,
     required this.names,
   });
@@ -21,22 +19,30 @@ class _CashflowPieChartState extends State<CashflowPieChart> {
   int touchedIndex = -1;
   Offset? _touchPosition;
 
-  // Define your custom color palette
-  final List<Color> _customColors = [
-    Color(0xFF4A69BD),
-    Color(0xFF7D3C98),
-    Color(0xFF9B59B6),
-    Color(0xFFE74C3C),
-    Color(0xFFE67E22),
-    Color(0xFFFFFFFF),
-    Color(0xFF000000),
-    Color(0xFFF5F5F5),
+  final List<Color> _colorPalette = [
+    const Color(0xFFFF6B6B), // Coral red
+    const Color(0xFF4A89DC), // Steel blue
+    const Color(0xFF8CC152), // Light green
+    const Color(0xFFF6BB42), // Yellow
+    const Color(0xFFE67E22), // Orange
+    const Color(0xFF9B59B6), // Purple
+    const Color(0xFF34495E), // Dark slate
+    const Color(0xFF1ABC9C), // Turquoise
+    const Color(0xFFD35400), // Pumpkin
+    const Color(0xFF7F8C8D), // Gray
+    const Color(0xFF2ECC71), // Emerald
+    const Color(0xFFE74C3C), // Red
   ];
 
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> data = _prepareData();
-    double totalCashflow = data.fold(0, (prev, item) => prev + item['amount']);
+    double totalIncome = data
+        .where((item) => item['type'] == 'Income')
+        .fold(0, (prev, item) => prev + item['amount']);
+    double totalExpenses = data
+        .where((item) => item['type'] == 'Expense')
+        .fold(0, (prev, item) => prev + item['amount']);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -57,14 +63,13 @@ class _CashflowPieChartState extends State<CashflowPieChart> {
                       }
                       touchedIndex =
                           pieTouchResponse.touchedSection!.touchedSectionIndex;
-                      _touchPosition =
-                          event.localPosition; // Capture touch position
+                      _touchPosition = event.localPosition;
                     });
                   },
                 ),
                 borderData: FlBorderData(show: false),
                 sectionsSpace: 0,
-                centerSpaceRadius: 47.03, // Match the ExpensesPieChart size
+                centerSpaceRadius: 55, // Match the ExpensesPieChart size
                 sections: _showingSections(data),
               ),
             ),
@@ -91,12 +96,19 @@ class _CashflowPieChartState extends State<CashflowPieChart> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '\$${totalCashflow.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 18,
+                  'RM${totalIncome.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: Colors.green,
                   ),
+                ),
+                Text(
+                  '- RM${totalExpenses.toStringAsFixed(2)}',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red),
                 ),
                 const Text(
                   'Total Cashflow',
@@ -118,14 +130,16 @@ class _CashflowPieChartState extends State<CashflowPieChart> {
     double totalAmount =
         widget.amounts.fold(0, (prev, amount) => prev + amount);
 
-    for (int i = 0; i < widget.numberOfCategories; i++) {
+    for (int i = 0; i < widget.amounts.length; i++) {
       data.add({
-        'color': _customColors[
-            i % _customColors.length], // Cycle through custom colors
+        'color': _colorPalette[i % _colorPalette.length],
         'value':
             (widget.amounts[i] / totalAmount * 100), // Calculate percentage
         'label': widget.names[i],
         'amount': widget.amounts[i],
+        'type': i % 2 == 0
+            ? 'Income'
+            : 'Expense', // Example: Alternate between Income and Expense
       });
     }
     return data;
@@ -135,7 +149,7 @@ class _CashflowPieChartState extends State<CashflowPieChart> {
     return List.generate(data.length, (i) {
       final isTouched = i == touchedIndex;
       final double fontSize = isTouched ? 20 : 16;
-      final double radius = isTouched ? 94.05 : 85.5;
+      final double radius = isTouched ? 80 : 75;
 
       return PieChartSectionData(
         color: data[i]['color'],
@@ -153,7 +167,7 @@ class _CashflowPieChartState extends State<CashflowPieChart> {
 
   double _getAdjustedXPosition(
       BuildContext context, BoxConstraints constraints) {
-    double tooltipWidth = 200; // Adjust according to your tooltip width
+    double tooltipWidth = 200;
     double screenWidth = constraints.maxWidth;
     double touchX = _touchPosition!.dx;
 
@@ -167,7 +181,7 @@ class _CashflowPieChartState extends State<CashflowPieChart> {
 
   double _getAdjustedYPosition(
       BuildContext context, BoxConstraints constraints) {
-    double tooltipHeight = 50; // Adjust according to your tooltip height
+    double tooltipHeight = 50;
     double screenHeight = constraints.maxHeight;
     double touchY = _touchPosition!.dy;
 
@@ -182,6 +196,6 @@ class _CashflowPieChartState extends State<CashflowPieChart> {
   String _getTooltipMessage(int index, List<Map<String, dynamic>> data) {
     if (index < 0 || index >= data.length) return '';
     final dataItem = data[index];
-    return '${dataItem['value'].toStringAsFixed(1)}% - ${dataItem['label']}\n\$${dataItem['amount']}';
+    return 'RM${dataItem['amount'].toStringAsFixed(2)}\n${dataItem['label']} - ${dataItem['value'].toStringAsFixed(1)}%';
   }
 }
