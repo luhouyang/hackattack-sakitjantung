@@ -7,6 +7,14 @@ import 'package:sakitjantung/llm/dataset.dart';
 import '../llm/model.dart';
 
 class ChatUseCase extends ChangeNotifier {
+  double transportationSum = 0;
+  double entertainmentSum = 0;
+  double utilitiesSum = 0;
+  double foodAndBeveragesSum = 0;
+  double othersSum = 0;
+  double incomeSum = 0;
+  double expenseSum = 0;
+
   LLM llm = LLM();
   Dataset dataset = Dataset();
   int documentSelected = 0;
@@ -37,8 +45,31 @@ class ChatUseCase extends ChangeNotifier {
     notifyListeners();
   }
 
+  void reportMessage() async {
+    typingUsers.add(bot);
+    notifyListeners();
+    String res = await llm.forecaster();
+    messages.insert(
+        0, dash.ChatMessage(user: bot, createdAt: DateTime.now(), text: res));
+
+    typingUsers.remove(bot);
+    notifyListeners();
+  }
+
   void changeSelectedDocument(int index) {
     documentSelected = index;
+    notifyListeners();
+  }
+
+  void updateValues(
+      double a, double b, double c, double d, double e, double f, double g) {
+    transportationSum = a;
+    entertainmentSum = b;
+    utilitiesSum = c;
+    foodAndBeveragesSum = d;
+    othersSum = e;
+    incomeSum = f;
+    expenseSum = g;
     notifyListeners();
   }
 }

@@ -18,25 +18,34 @@ class _ChatPageState extends State<ChatPage> {
       builder: (context, chatUseCase, child) {
         return Column(
           children: [
-            DropdownButton<int>(
-              value: chatUseCase.documentSelected,
-              onChanged: (int? newValue) {
-                if (newValue != null) {
-                  chatUseCase.changeSelectedDocument(newValue);
-                }
-              },
-              items: List<DropdownMenuItem<int>>.generate(
-                chatUseCase.dataset.documentsByTopic.length,
-                (int index) {
-                  return DropdownMenuItem<int>(
-                    value: index,
-                    child: Text(
-                      chatUseCase.dataset.documentsByTopic.keys
-                          .elementAt(index),
-                    ),
-                  );
-                },
-              ),
+            Column(
+              children: [
+                DropdownButton<int>(
+                  value: chatUseCase.documentSelected,
+                  onChanged: (int? newValue) {
+                    if (newValue != null) {
+                      chatUseCase.changeSelectedDocument(newValue);
+                    }
+                  },
+                  items: List<DropdownMenuItem<int>>.generate(
+                    chatUseCase.dataset.documentsByTopic.length,
+                    (int index) {
+                      return DropdownMenuItem<int>(
+                        value: index,
+                        child: Text(
+                          chatUseCase.dataset.documentsByTopic.keys
+                              .elementAt(index),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                TextButton(
+                    onPressed: () {
+                      chatUseCase.reportMessage();
+                    },
+                    child: Text("Forecast"))
+              ],
             ),
             Expanded(
               child: DashChat(

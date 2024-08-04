@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:sakitjantung/entities/noti_entity.dart';
+import 'package:sakitjantung/usecase/chat_usecase.dart';
 import 'package:sakitjantung/widgets/cashflow_data.dart';
 import 'package:sakitjantung/widgets/piechart_cashflow.dart';
 import 'package:sakitjantung/widgets/piechart_expenses.dart';
@@ -18,6 +20,12 @@ class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPage = 0;
   final List<String> titles = ['Expense', 'Cashflow'];
+  List<dynamic> transportationSum = [0, 0];
+  List<dynamic> entertainmentSum = [0, 0];
+  List<dynamic> utilitiesSum = [0, 0];
+  List<dynamic> foodAndBeveragesSum = [0, 0];
+  List<dynamic> othersSum = [0, 0];
+  List<dynamic> cashflowSums = [0, 0];
 
   @override
   void dispose() {
@@ -50,6 +58,17 @@ class _HomePageState extends State<HomePage> {
       }
     }
     return [incomeSum, expenseSum];
+  }
+
+  void updateChatUseCase(ChatUseCase chatUseCase) {
+    chatUseCase.updateValues(
+        transportationSum[0],
+        entertainmentSum[0],
+        utilitiesSum[0],
+        foodAndBeveragesSum[0],
+        othersSum[0],
+        cashflowSums[0],
+        cashflowSums[1]);
   }
 
   @override
@@ -103,15 +122,11 @@ class _HomePageState extends State<HomePage> {
                             .toList();
 
                         // Calculate subtotals for each category
-                        List<dynamic> transportationSum =
-                            calculateSubTotal(events, 0);
-                        List<dynamic> entertainmentSum =
-                            calculateSubTotal(events, 1);
-                        List<dynamic> utilitiesSum =
-                            calculateSubTotal(events, 2);
-                        List<dynamic> foodAndBeveragesSum =
-                            calculateSubTotal(events, 3);
-                        List<dynamic> othersSum = calculateSubTotal(events, 4);
+                        transportationSum = calculateSubTotal(events, 0);
+                        entertainmentSum = calculateSubTotal(events, 1);
+                        utilitiesSum = calculateSubTotal(events, 2);
+                        foodAndBeveragesSum = calculateSubTotal(events, 3);
+                        othersSum = calculateSubTotal(events, 4);
 
                         return Column(
                           children: [
@@ -147,47 +162,59 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                   // Cashflow Page
-                  StreamBuilder(
-                    stream: FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(FirebaseAuth.instance.currentUser!.uid)
-                        .collection('events')
-                        .orderBy('createAt')
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text("Error: ${snapshot.error}"));
-                      } else {
-                        List<NotificationEventEntity> events = snapshot
-                            .data!.docs
-                            .map((doc) => NotificationEventEntity.fromMap(
-                                doc.data() as Map<String, dynamic>))
-                            .toList();
+                  Consumer<ChatUseCase>(
+                    builder: (context, chatUseCase, child) {
+                      return StreamBuilder(
+                        stream: FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(FirebaseAuth.instance.currentUser!.uid)
+                            .collection('events')
+                            .orderBy('createAt')
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Center(
+                                child: Text("Error: ${snapshot.error}"));
+                          } else {
+                            List<NotificationEventEntity> events = snapshot
+                                .data!.docs
+                                .map((doc) => NotificationEventEntity.fromMap(
+                                    doc.data() as Map<String, dynamic>))
+                                .toList();
 
-                        // Calculate cashflow sums (income and expenses)
-                        List<dynamic> cashflowSums =
-                            calculateSubTotaltt(events);
+                            // Calculate cashflow sums (income and expenses)
+                            cashflowSums = calculateSubTotaltt(events);
 
-                        return Column(
-                          children: [
-                            Expanded(
-                              child: CashflowPieChart(
-                                amounts: [
-                                  cashflowSums[0], // income
-                                  cashflowSums[1], // expenses
-                                ],
-                                names: const ['Income', 'Expenses'],
-                              ),
-                            ),
-                            CashflowData(
-                              incomeSum: cashflowSums[0],
-                              expensesSum: cashflowSums[1],
-                            ),
-                          ],
-                        );
-                      }
+                            // Update chatUseCase after the build
+                            // WidgetsBinding.instance.addPostFrameCallback((_) {
+                            //   updateChatUseCase(chatUseCase);
+                            // });
+
+                            return Column(
+                              children: [
+                                Expanded(
+                                  child: CashflowPieChart(
+                                    amounts: [
+                                      cashflowSums[0], // income
+                                      cashflowSums[1], // expenses
+                                    ],
+                                    names: const ['Income', 'Expenses'],
+                                  ),
+                                ),
+                                CashflowData(
+                                  incomeSum: cashflowSums[0],
+                                  expensesSum: cashflowSums[1],
+                                ),
+                                const SizedBox(height: 1),
+                              ],
+                            );
+                          }
+                        },
+                      );
                     },
                   ),
                 ],
